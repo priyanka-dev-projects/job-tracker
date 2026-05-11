@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { lightTheme, darkTheme } from "./theme";
+import { Sun, Moon } from "lucide-react";
 
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -38,6 +40,21 @@ function AuthProvider({ children }) {
       return null;
     }
   });
+
+  const [darkMode, setDarkMode, sideBarDarkMode, setSideBarDarkMode] = useState(() => {
+    return localStorage.getItem("jat_dark_mode") === "true";
+  });
+
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => {
+      localStorage.setItem("jat_dark_mode", !prev);
+      return !prev;
+    });
+  };
+
+  const theme = darkMode ? darkTheme : lightTheme;
+
+  const siderBarTheme = darkMode ? lightTheme : darkTheme;
 
   // const login = (userData, token) => {
   //   qc.clear();
@@ -81,7 +98,9 @@ function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, darkMode, toggleDarkMode, theme, siderBarTheme }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -92,31 +111,79 @@ function PrivateRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
+function AppContent() {
+  const { darkMode, toggleDarkMode, theme } = useAuth();
+
+  return (
+    <BrowserRouter>
+      <div
+        style={{
+          background: theme.bg,
+          minHeight: "100vh",
+          color: theme.text,
+          transition: "all 0.2s ease",
+        }}
+      >
+        {/* Dark mode button */}
+        <div
+          style={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            zIndex: 999,
+          }}
+        >
+          <button
+            onClick={toggleDarkMode}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              border: `1px solid ${theme.border}`,
+              background: theme.card,
+              color: theme.text,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+            }}
+          >
+            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+        </div>
+
+        <Toaster position="top-right" />
+
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <Layout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<DashboardPage />} />
+            <Route path="kanban" element={<KanbanPage />} />
+            <Route path="resumes" element={<ResumePage />} />
+            <Route path="skills" element={<SkillsPage />} />
+            <Route path="apps/:id" element={<AppDetailPage />} />
+          </Route>
+        </Routes>
+      </div>
+    </BrowserRouter>
+  );
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter key={localStorage.getItem("jat_token")}>
-          <Toaster position="top-right" />
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <Layout />
-                </PrivateRoute>
-              }
-            >
-              <Route index element={<DashboardPage />} />
-              <Route path="kanban" element={<KanbanPage />} />
-              <Route path="resumes" element={<ResumePage />} />
-              <Route path="skills" element={<SkillsPage />} />
-              <Route path="apps/:id" element={<AppDetailPage />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+        <AppContent />
       </AuthProvider>
     </QueryClientProvider>
   );

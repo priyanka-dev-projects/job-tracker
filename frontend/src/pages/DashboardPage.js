@@ -12,6 +12,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import Loader from "../components/Loader";
 
 const STATUS_STYLE = {
   wishlist: { bg: "#eff6ff", text: "#3b82f6", dot: "#3b82f6" },
@@ -31,14 +32,14 @@ const CHART_COLORS = [
   "#ef4444",
 ];
 
-function Card({ icon: Icon, label, value, color = "#6366f1", sub }) {
+function Card({ icon: Icon, label, value, color = "#6366f1", sub, theme }) {
   return (
     <div
       style={{
-        background: "#fff",
+        background: theme.card,
         borderRadius: 14,
         padding: "1.25rem 1.5rem",
-        border: "1px solid #e2e8f0",
+        border: `1px solid ${theme.border}`,
         display: "flex",
         alignItems: "center",
         gap: 14,
@@ -63,7 +64,7 @@ function Card({ icon: Icon, label, value, color = "#6366f1", sub }) {
         <div
           style={{
             fontSize: 12,
-            color: "#64748b",
+            color: theme.subtext,
             fontWeight: 500,
             textTransform: "uppercase",
             letterSpacing: 0.4,
@@ -75,7 +76,7 @@ function Card({ icon: Icon, label, value, color = "#6366f1", sub }) {
           style={{
             fontSize: 26,
             fontWeight: 800,
-            color: "#0f172a",
+            color: theme.text,
             lineHeight: 1.1,
           }}
         >
@@ -112,21 +113,21 @@ function StatusBadge({ status }) {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
-  const { data: stats } = useQuery({
+  const { user, theme } = useAuth();
+  const { data: stats, isLoading } = useQuery({
     queryKey: ["stats", user?.id],
     queryFn: () => appAPI.stats().then((r) => r.data),
     enabled: !!user?.id,
   });
 
   const chartData = [
-  { name: "Wishlist", value: stats?.by_status?.wishlist || 0 },
-  { name: "Applied", value: stats?.by_status?.applied || 0 },
-  { name: "Screening", value: stats?.by_status?.screening || 0 },
-  { name: "Interview", value: stats?.by_status?.interview || 0 },
-  { name: "Offer", value: stats?.by_status?.offer || 0 },
-  { name: "Rejected", value: stats?.by_status?.rejected || 0 },
-];
+    { name: "Wishlist", value: stats?.by_status?.wishlist || 0 },
+    { name: "Applied", value: stats?.by_status?.applied || 0 },
+    { name: "Screening", value: stats?.by_status?.screening || 0 },
+    { name: "Interview", value: stats?.by_status?.interview || 0 },
+    { name: "Offer", value: stats?.by_status?.offer || 0 },
+    { name: "Rejected", value: stats?.by_status?.rejected || 0 },
+  ];
   const { data: apps } = useQuery({
     queryKey: ["apps", user?.id],
     queryFn: () => appAPI.list().then((r) => r.data),
@@ -144,21 +145,27 @@ export default function DashboardPage() {
     "rejected",
   ];
 
+  if (isLoading) {
+    return (
+      <Loader text="Loading applications..." />
+    );
+  }
+
   return (
     <div>
       <div style={{ marginBottom: "1.75rem" }}>
         <h1
-          style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "#0f172a" }}
+          style={{ margin: 0, fontSize: 24, fontWeight: 800, color: theme.text }}
         >
           Good to see you, {user?.name?.split(" ")[0]} 👋
         </h1>
-        <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: 14 }}>
+        <p style={{ margin: "4px 0 0", color: theme.subtext, fontSize: 14 }}>
           Here's your job search snapshot
         </p>
       </div>
 
       {/* Stat cards */}
-      <div
+      {/* <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))",
@@ -171,40 +178,45 @@ export default function DashboardPage() {
           label="Total"
           value={stats?.total}
           color="#6366f1"
+          theme={theme}
         />
         <Card
           icon={TrendingUp}
           label="Avg Match"
           value={stats?.avg_match_score ? `${stats.avg_match_score}%` : null}
           color="#0ea5e9"
+          theme={theme}
         />
         <Card
           icon={CheckCircle}
           label="Offers"
           value={by.offer}
           color="#16a34a"
+          theme={theme}
         />
         <Card
           icon={Clock}
           label="Interviews"
           value={by.interview}
           color="#f59e0b"
+          theme={theme}
         />
         <Card
           icon={XCircle}
           label="Rejected"
           value={by.rejected}
           color="#ef4444"
+          theme={theme}
         />
       </div>
 
       <div
         style={{
-          background: "#fff",
+          background: theme.card,
           borderRadius: 18,
           padding: "1.5rem",
           marginTop: "1.5rem",
-          border: "1px solid #e2e8f0",
+          border: `1px solid ${theme.border}`,
           marginBottom: "1.75rem",
         }}
       >
@@ -212,7 +224,7 @@ export default function DashboardPage() {
           style={{
             fontSize: 18,
             fontWeight: 700,
-            color: "#0f172a",
+            color: theme.text,
             marginBottom: "1rem",
           }}
         >
@@ -228,7 +240,6 @@ export default function DashboardPage() {
                 cy="50%"
                 outerRadius={100}
                 dataKey="value"
-                label
               >
                 {chartData.map((entry, index) => (
                   <Cell
@@ -242,14 +253,14 @@ export default function DashboardPage() {
             </PieChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </div> */}
 
       {/* Pipeline funnel */}
       <div
         style={{
-          background: "#fff",
+          background: theme.card,
           borderRadius: 14,
-          border: "1px solid #e2e8f0",
+          border: `1px solid ${theme.border}`,
           padding: "1.5rem",
           marginBottom: "1.75rem",
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
@@ -260,7 +271,7 @@ export default function DashboardPage() {
             margin: "0 0 1rem",
             fontSize: 15,
             fontWeight: 700,
-            color: "#0f172a",
+            color: theme.text,
           }}
         >
           Application pipeline
@@ -289,7 +300,7 @@ export default function DashboardPage() {
                   <div
                     style={{
                       fontSize: 11,
-                      color: "#64748b",
+                      color: theme.subtext,
                       textTransform: "capitalize",
                       marginTop: 2,
                       fontWeight: 500,
@@ -318,9 +329,9 @@ export default function DashboardPage() {
       {/* Recent apps */}
       <div
         style={{
-          background: "#fff",
+          background: theme.card,
           borderRadius: 14,
-          border: "1px solid #e2e8f0",
+          border: `1px solid ${theme.border}`,
           padding: "1.5rem",
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
         }}
@@ -338,7 +349,7 @@ export default function DashboardPage() {
               margin: 0,
               fontSize: 15,
               fontWeight: 700,
-              color: "#0f172a",
+              color: theme.text,
             }}
           >
             Recent applications
@@ -391,11 +402,11 @@ export default function DashboardPage() {
                   padding: "0.75rem 0.5rem",
                   borderRadius: 8,
                   borderBottom:
-                    i < recent.length - 1 ? "1px solid #f1f5f9" : "none",
+                    i < recent.length - 1 ? `1px solid ${theme.border}` : "none",
                   transition: "background 0.1s",
                 }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "#f8fafc")
+                  (e.currentTarget.style.background = theme.bg)
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = "transparent")
@@ -403,11 +414,11 @@ export default function DashboardPage() {
               >
                 <div>
                   <div
-                    style={{ fontWeight: 600, color: "#0f172a", fontSize: 14 }}
+                    style={{ fontWeight: 600, color: theme.text, fontSize: 14 }}
                   >
                     {app.company}
                   </div>
-                  <div style={{ fontSize: 12, color: "#64748b", marginTop: 1 }}>
+                  <div style={{ fontSize: 12, color: theme.subtext, marginTop: 1 }}>
                     {app.role}
                   </div>
                 </div>

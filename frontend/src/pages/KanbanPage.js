@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { Plus, X, ExternalLink } from "lucide-react";
 import { useAuth } from "../App";
 import { Search } from "lucide-react";
+import Loader from "../components/Loader";
 
 const COLUMNS = [
   { id: "wishlist", label: "Wishlist", color: "#3b82f6" },
@@ -17,7 +18,7 @@ const COLUMNS = [
   { id: "rejected", label: "Rejected", color: "#ef4444" },
 ];
 
-function Modal({ onClose }) {
+function Modal({ onClose, theme }) {
   const [form, setForm] = useState({
     company: "",
     role: "",
@@ -41,7 +42,7 @@ function Modal({ onClose }) {
     width: "100%",
     padding: "0.6rem 0.75rem",
     borderRadius: 8,
-    border: "1px solid #e2e8f0",
+    border: `1px solid ${theme.border}`,
     fontSize: 13,
     outline: "none",
     boxSizing: "border-box",
@@ -62,7 +63,7 @@ function Modal({ onClose }) {
     >
       <div
         style={{
-          background: "#fff",
+          background: theme.card,
           borderRadius: 18,
           padding: "1.75rem",
           width: "100%",
@@ -83,7 +84,7 @@ function Modal({ onClose }) {
               margin: 0,
               fontSize: 18,
               fontWeight: 800,
-              color: "#0f172a",
+              color:theme.text,
             }}
           >
             New application
@@ -102,7 +103,7 @@ function Modal({ onClose }) {
               justifyContent: "center",
             }}
           >
-            <X size={16} color="#64748b" />
+            <X size={16} color= "#64748b" />
           </button>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -221,7 +222,7 @@ function Modal({ onClose }) {
   );
 }
 
-function AppCard({ app, index }) {
+function AppCard({ app, index, theme }) {
   return (
     <Draggable draggableId={app.id} index={index}>
       {(prov, snap) => (
@@ -230,8 +231,8 @@ function AppCard({ app, index }) {
           {...prov.draggableProps}
           {...prov.dragHandleProps}
           style={{
-            background: snap.isDragging ? "#eef2ff" : "#fff",
-            border: "1px solid #e2e8f0",
+            background: snap.isDragging ? "#eef2ff" : theme.card,
+            border: `1px solid ${theme.border}`,
             borderRadius: 12,
             padding: "1rem",
             marginBottom: 8,
@@ -257,7 +258,7 @@ function AppCard({ app, index }) {
                 style={{
                   fontWeight: 700,
                   fontSize: 15,
-                  color: "#0f172a",
+                  color:theme.text,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
@@ -269,7 +270,7 @@ function AppCard({ app, index }) {
               <div
                 style={{
                   fontSize: 13,
-                  color: "#64748b",
+                  color: theme.subtext,
                   marginTop: 4,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -346,7 +347,7 @@ export default function KanbanPage() {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const { user } = useAuth();
+  const { user, theme } = useAuth();
   const qc = useQueryClient();
   const { data: apps = [], isLoading } = useQuery({
     queryKey: ["apps", user?.id, statusFilter, search],
@@ -430,12 +431,12 @@ export default function KanbanPage() {
               margin: 0,
               fontSize: 22,
               fontWeight: 800,
-              color: "#0f172a",
+              color:theme.text,
             }}
           >
             Applications
           </h1>
-          <p style={{ margin: "3px 0 0", color: "#64748b", fontSize: 13 }}>
+          <p style={{ margin: "3px 0 0", color: theme.subtext, fontSize: 13 }}>
             {apps.length} total · drag cards to update stage
           </p>
         </div>
@@ -495,7 +496,7 @@ export default function KanbanPage() {
               width: 320,
               fontSize: 14,
               outline: "none",
-              background: "#fff",
+              background: theme.card,
               height: 46,
               boxShadow: "0 0 0 3px rgba(99,102,241,0.12)",
               borderColor: "#6366f1",
@@ -524,9 +525,7 @@ export default function KanbanPage() {
       </div>
 
       {isLoading ? (
-        <div style={{ textAlign: "center", padding: "3rem", color: "#94a3b8" }}>
-          Loading…
-        </div>
+        <Loader text="Loading applications..." />
       ) : (
         <DragDropContext onDragEnd={onDragEnd}>
           <div
@@ -568,7 +567,7 @@ export default function KanbanPage() {
                     style={{
                       fontSize: 12,
                       fontWeight: 700,
-                      color: "#374151",
+                      color: theme.subtext,
                       textTransform: "uppercase",
                       letterSpacing: 0.4,
                     }}
@@ -579,7 +578,7 @@ export default function KanbanPage() {
                     style={{
                       marginLeft: "auto",
                       fontSize: 11,
-                      color: "#94a3b8",
+                      color: theme.roundCircleText,
                       background: "#f1f5f9",
                       padding: "1px 7px",
                       borderRadius: 10,
@@ -599,8 +598,9 @@ export default function KanbanPage() {
                         borderRadius: 10,
                         padding: 7,
                         transition: "all 0.15s",
-                        background: snap.isDraggingOver ? "#eff6ff" : "#f8fafc",
-                        border: `1.5px solid ${snap.isDraggingOver ? "#bfdbfe" : "#e2e8f0"}`,
+                        background: snap.isDraggingOver ? "#eff6ff" : theme.bg,
+                        // border: `1.5px solid ${snap.isDraggingOver ? "#bfdbfe" : "#e2e8f0"}`,
+                        border: `1px solid ${theme.border}`
                       }}
                     >
                       {grouped[col.id].length === 0 ? (
@@ -612,9 +612,9 @@ export default function KanbanPage() {
                             justifyContent: "center",
                             color: "#94a3b8",
                             fontSize: 13,
-                            border: "1px dashed #e2e8f0",
+                            border: `1px dashed ${theme.border}`,
                             borderRadius: 8,
-                            background: "#ffffff",
+                            background: theme.card,
                             marginTop: 4,
                           }}
                         >
@@ -622,7 +622,7 @@ export default function KanbanPage() {
                         </div>
                       ) : (
                         grouped[col.id].map((app, i) => (
-                          <AppCard key={app.id} app={app} index={i} />
+                          <AppCard key={app.id} app={app} index={i} theme={theme}/>
                         ))
                       )}
                       {prov.placeholder}

@@ -13,6 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import Loader from "../components/Loader";
 
 function Badge({ text, color = "#4f46e5", bg = "#eef2ff" }) {
   return (
@@ -31,15 +32,15 @@ function Badge({ text, color = "#4f46e5", bg = "#eef2ff" }) {
   );
 }
 
-function ResumeCard({ resume, onDelete }) {
+function ResumeCard({ resume, onDelete, theme }) {
   const [open, setOpen] = useState(false);
   const p = resume.parsed;
 
   return (
     <div
       style={{
-        background: "#fff",
-        border: "1px solid #e2e8f0",
+        background: theme.card,
+        border: `1px solid ${theme.border}`,
         borderRadius: 14,
         marginBottom: 10,
         overflow: "hidden",
@@ -73,7 +74,7 @@ function ResumeCard({ resume, onDelete }) {
             style={{
               fontWeight: 700,
               fontSize: 14,
-              color: "#0f172a",
+              color: theme.text,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -90,93 +91,93 @@ function ResumeCard({ resume, onDelete }) {
           </div>
         </div>
         <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-  {/* Preview */}
-  <a
-    href={resume.file_url}
-    target="_blank"
-    rel="noreferrer"
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 4,
-      background: "#eef2ff",
-      border: "1px solid #c7d2fe",
-      borderRadius: 8,
-      padding: "5px 10px",
-      fontSize: 12,
-      textDecoration: "none",
-      color: "#6366f1",
-      fontWeight: 600,
-    }}
-  >
-    Preview
-  </a>
+          {/* Preview */}
+          <a
+            href={resume.file_url}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              background: "#eef2ff",
+              border: "1px solid #c7d2fe",
+              borderRadius: 8,
+              padding: "5px 10px",
+              fontSize: 12,
+              textDecoration: "none",
+              color: "#6366f1",
+              fontWeight: 600,
+            }}
+          >
+            Preview
+          </a>
 
-  {/* Download */}
-  <a
-    href={resume.file_url}
-    download
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 4,
-      background: "#f8fafc",
-      border: "1px solid #e2e8f0",
-      borderRadius: 8,
-      padding: "5px 10px",
-      fontSize: 12,
-      textDecoration: "none",
-      color: "#334155",
-      fontWeight: 600,
-    }}
-  >
-    Download
-  </a>
+          {/* Download */}
+          <a
+            href={resume.file_url}
+            download
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              background: theme.bg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: 8,
+              padding: "5px 10px",
+              fontSize: 12,
+              textDecoration: "none",
+              color: theme.subtext,
+              fontWeight: 600,
+            }}
+          >
+            Download
+          </a>
 
-  {/* Details */}
-  <button
-    onClick={() => setOpen((o) => !o)}
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 4,
-      background: "#f8fafc",
-      border: "1px solid #e2e8f0",
-      borderRadius: 8,
-      padding: "5px 10px",
-      fontSize: 12,
-      cursor: "pointer",
-      color: "#374151",
-      fontWeight: 500,
-    }}
-  >
-    {open ? (
-      <>
-        <ChevronUp size={13} /> Hide
-      </>
-    ) : (
-      <>
-        <ChevronDown size={13} /> Details
-      </>
-    )}
-  </button>
+          {/* Details */}
+          <button
+            onClick={() => setOpen((o) => !o)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              background: theme.bg,
+              border: `1px solid ${theme.border}`,
+              borderRadius: 8,
+              padding: "5px 10px",
+              fontSize: 12,
+              cursor: "pointer",
+              color: theme.subtext,
+              fontWeight: 500,
+            }}
+          >
+            {open ? (
+              <>
+                <ChevronUp size={13} /> Hide
+              </>
+            ) : (
+              <>
+                <ChevronDown size={13} /> Details
+              </>
+            )}
+          </button>
 
-  {/* Delete */}
-  <button
-    onClick={() => onDelete(resume.id)}
-    style={{
-      background: "#fef2f2",
-      border: "1px solid #fecaca",
-      borderRadius: 8,
-      padding: "5px 8px",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-    }}
-  >
-    <Trash2 size={13} color="#ef4444" />
-  </button>
-</div>
+          {/* Delete */}
+          <button
+            onClick={() => onDelete(resume.id)}
+            style={{
+              background: "#fef2f2",
+              border: "1px solid #fecaca",
+              borderRadius: 8,
+              padding: "5px 8px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Trash2 size={13} color="#ef4444" />
+          </button>
+        </div>
       </div>
 
       {/* Skills preview always visible */}
@@ -238,7 +239,7 @@ function ResumeCard({ resume, onDelete }) {
               </div>
               {p.name && (
                 <div
-                  style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}
+                  style={{ fontSize: 13, fontWeight: 600, color: theme.text }}
                 >
                   {p.name}
                 </div>
@@ -247,7 +248,7 @@ function ResumeCard({ resume, onDelete }) {
                 <div style={{ fontSize: 13, color: "#6366f1" }}>{p.email}</div>
               )}
               {p.phone && (
-                <div style={{ fontSize: 13, color: "#64748b" }}>{p.phone}</div>
+                <div style={{ fontSize: 13, color: theme.subtext }}>{p.phone}</div>
               )}
             </div>
           )}
@@ -274,11 +275,11 @@ function ResumeCard({ resume, onDelete }) {
                     borderBottom: "1px solid #f8fafc",
                   }}
                 >
-                  <span style={{ fontWeight: 600, color: "#0f172a" }}>
+                  <span style={{ fontWeight: 600, color: theme.text }}>
                     {e.title}
                   </span>
                   {e.company && (
-                    <span style={{ color: "#64748b" }}> · {e.company}</span>
+                    <span style={{ color: theme.subtext }}> · {e.company}</span>
                   )}
                 </div>
               ))}
@@ -316,7 +317,7 @@ function ResumeCard({ resume, onDelete }) {
 
 export default function ResumePage() {
   const qc = useQueryClient();
-  const { user } = useAuth();
+  const { user, theme } = useAuth();
   const { data: resumes = [], isLoading } = useQuery({
     queryKey: ["resumes", user?.id],
     queryFn: () =>
@@ -421,11 +422,11 @@ export default function ResumePage() {
     <div>
       <div style={{ marginBottom: "1.5rem" }}>
         <h1
-          style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#0f172a" }}
+          style={{ margin: 0, fontSize: 22, fontWeight: 800, color: theme.text }}
         >
           My Resumes
         </h1>
-        <p style={{ margin: "3px 0 0", color: "#64748b", fontSize: 13 }}>
+        <p style={{ margin: "3px 0 0", color: theme.subtext, fontSize: 13 }}>
           Upload PDF or DOCX — skills extracted automatically
         </p>
       </div>
@@ -434,7 +435,8 @@ export default function ResumePage() {
       <div
         {...getRootProps()}
         style={{
-          border: `2px dashed ${isDragActive ? "#6366f1" : "#cbd5e1"}`,
+          // border: `2px dashed ${isDragActive ? "#6366f1" : "#cbd5e1"}`,
+          border: `2px dashed ${theme.border}`,
           borderRadius: 16,
           padding: "2.5rem 1rem",
           textAlign: "center",
@@ -487,9 +489,7 @@ export default function ResumePage() {
       </div>
 
       {isLoading ? (
-        <div style={{ textAlign: "center", padding: "2rem", color: "#94a3b8" }}>
-          Loading…
-        </div>
+        <Loader text="Loading applications..." />
       ) : resumes.length === 0 ? (
         <div
           style={{
@@ -503,7 +503,7 @@ export default function ResumePage() {
         </div>
       ) : (
         resumes.map((r) => (
-          <ResumeCard key={r.id} resume={r} onDelete={handleDelete} />
+        <ResumeCard key={r.id} resume={r} onDelete={handleDelete} theme={theme} />
         ))
       )}
     </div>
