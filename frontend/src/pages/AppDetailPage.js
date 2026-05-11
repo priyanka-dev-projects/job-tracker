@@ -5,6 +5,7 @@ import { appAPI, resumeAPI, matchAPI } from "../api/client";
 import toast from "react-hot-toast";
 import { ArrowLeft, Zap, CheckCircle, XCircle, ExternalLink, Edit2, Save, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useAuth } from "../App";
 
 const STATUS_COLOR = {
   wishlist:"#3b82f6", applied:"#f59e0b", screening:"#f97316",
@@ -16,6 +17,7 @@ export default function AppDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { user } = useAuth();
   const [jdText, setJdText] = useState("");
   const [matchResult, setMatch] = useState(null);
   const [selectedResume, setSelectedResume] = useState("");
@@ -23,11 +25,13 @@ export default function AppDetailPage() {
   const [editForm, setEditForm] = useState({});
 
   const { data: app, isLoading } = useQuery({
-    queryKey: ["app", id], queryFn: () => appAPI.get(id).then(r => r.data),
+    queryKey: ["app", user?.id, id], queryFn: () => appAPI.get(id).then(r => r.data),
+    enabled: !!user?.id,
   });
 
   const { data: resumes = [] } = useQuery({
-    queryKey: ["resumes"], queryFn: () => resumeAPI.list().then(r => r.data),
+    queryKey: ["resumes", user?.id,], queryFn: () => resumeAPI.list().then(r => r.data),
+    enabled: !!user?.id,
   });
 
   const statusMut = useMutation({

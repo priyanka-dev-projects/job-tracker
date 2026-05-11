@@ -115,7 +115,6 @@ docker-compose up --build
 
 ---
 
-
 ## 🚧 Future Improvements
 
 * Semantic matching using embeddings

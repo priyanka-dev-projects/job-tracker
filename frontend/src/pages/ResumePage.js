@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDropzone } from "react-dropzone";
 import { resumeAPI } from "../api/client";
 import toast from "react-hot-toast";
+import { useAuth } from "../App";
 import {
   Upload,
   FileText,
@@ -29,7 +30,6 @@ function Badge({ text, color = "#4f46e5", bg = "#eef2ff" }) {
     </span>
   );
 }
-
 
 function ResumeCard({ resume, onDelete }) {
   const [open, setOpen] = useState(false);
@@ -90,47 +90,93 @@ function ResumeCard({ resume, onDelete }) {
           </div>
         </div>
         <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-          <button
-            onClick={() => setOpen((o) => !o)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              background: "#f8fafc",
-              border: "1px solid #e2e8f0",
-              borderRadius: 8,
-              padding: "5px 10px",
-              fontSize: 12,
-              cursor: "pointer",
-              color: "#374151",
-              fontWeight: 500,
-            }}
-          >
-            {open ? (
-              <>
-                <ChevronUp size={13} /> Hide
-              </>
-            ) : (
-              <>
-                <ChevronDown size={13} /> Details
-              </>
-            )}
-          </button>
-          <button
-            onClick={() => onDelete(resume.id)}
-            style={{
-              background: "#fef2f2",
-              border: "1px solid #fecaca",
-              borderRadius: 8,
-              padding: "5px 8px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <Trash2 size={13} color="#ef4444" />
-          </button>
-        </div>
+  {/* Preview */}
+  <a
+    href={resume.file_url}
+    target="_blank"
+    rel="noreferrer"
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 4,
+      background: "#eef2ff",
+      border: "1px solid #c7d2fe",
+      borderRadius: 8,
+      padding: "5px 10px",
+      fontSize: 12,
+      textDecoration: "none",
+      color: "#6366f1",
+      fontWeight: 600,
+    }}
+  >
+    Preview
+  </a>
+
+  {/* Download */}
+  <a
+    href={resume.file_url}
+    download
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 4,
+      background: "#f8fafc",
+      border: "1px solid #e2e8f0",
+      borderRadius: 8,
+      padding: "5px 10px",
+      fontSize: 12,
+      textDecoration: "none",
+      color: "#334155",
+      fontWeight: 600,
+    }}
+  >
+    Download
+  </a>
+
+  {/* Details */}
+  <button
+    onClick={() => setOpen((o) => !o)}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 4,
+      background: "#f8fafc",
+      border: "1px solid #e2e8f0",
+      borderRadius: 8,
+      padding: "5px 10px",
+      fontSize: 12,
+      cursor: "pointer",
+      color: "#374151",
+      fontWeight: 500,
+    }}
+  >
+    {open ? (
+      <>
+        <ChevronUp size={13} /> Hide
+      </>
+    ) : (
+      <>
+        <ChevronDown size={13} /> Details
+      </>
+    )}
+  </button>
+
+  {/* Delete */}
+  <button
+    onClick={() => onDelete(resume.id)}
+    style={{
+      background: "#fef2f2",
+      border: "1px solid #fecaca",
+      borderRadius: 8,
+      padding: "5px 8px",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+    }}
+  >
+    <Trash2 size={13} color="#ef4444" />
+  </button>
+</div>
       </div>
 
       {/* Skills preview always visible */}
@@ -270,8 +316,9 @@ function ResumeCard({ resume, onDelete }) {
 
 export default function ResumePage() {
   const qc = useQueryClient();
+  const { user } = useAuth();
   const { data: resumes = [], isLoading } = useQuery({
-    queryKey: ["resumes"],
+    queryKey: ["resumes", user?.id],
     queryFn: () =>
       resumeAPI.list().then((r) =>
         r.data.map((item) => ({
@@ -279,6 +326,7 @@ export default function ResumePage() {
           id: item._id || item.id,
         })),
       ),
+    enabled: !!user?.id,
   });
 
   const uploadMut = useMutation({
@@ -293,41 +341,61 @@ export default function ResumePage() {
 
   const deleteMut = useMutation({
     mutationFn: (id) => resumeAPI.delete(id),
-    onSuccess: () => {
-      qc.invalidateQueries(["resumes"]);
+
+    onSuccess: async (_, id) => {
+      qc.setQueryData(["resumes", user?.id], (old = []) =>
+        old.filter((r) => r.id !== id),
+      );
+
+      await qc.invalidateQueries({
+        queryKey: ["resumes", user?.id],
+      });
+
       toast.success("Resume deleted");
     },
-    onError: () => toast.error("Delete failed"),
+
+    onError: () => {
+      toast.error("Delete failed");
+    },
   });
 
-//   const deleteMut = useMutation({
-//   mutationFn: (id) => resumeAPI.delete(id),
+  // const deleteMut = useMutation({
+  //   mutationFn: (id) => resumeAPI.delete(id),
+  //   onSuccess: () => {
+  //     qc.invalidateQueries(["resumes"]);
+  //     toast.success("Resume deleted");
+  //   },
+  //   onError: () => toast.error("Delete failed"),
+  // });
 
-//   onMutate: async (id) => {
-//     await qc.cancelQueries(["resumes"]);
+  //   const deleteMut = useMutation({
+  //   mutationFn: (id) => resumeAPI.delete(id),
 
-//     const previous = qc.getQueryData(["resumes"]);
+  //   onMutate: async (id) => {
+  //     await qc.cancelQueries(["resumes"]);
 
-//     qc.setQueryData(["resumes"], (old = []) =>
-//       old.filter((r) => r.id !== id)
-//     );
+  //     const previous = qc.getQueryData(["resumes"]);
 
-//     return { previous };
-//   },
+  //     qc.setQueryData(["resumes"], (old = []) =>
+  //       old.filter((r) => r.id !== id)
+  //     );
 
-//   onError: (err, id, context) => {
-//     qc.setQueryData(["resumes"], context.previous);
-//     toast.error("Delete failed");
-//   },
+  //     return { previous };
+  //   },
 
-//   onSuccess: () => {
-//     toast.success("Resume deleted");
-//   },
+  //   onError: (err, id, context) => {
+  //     qc.setQueryData(["resumes"], context.previous);
+  //     toast.error("Delete failed");
+  //   },
 
-//   // onSettled: () => {
-//   //   qc.invalidateQueries(["resumes"]);
-//   // },
-// });
+  //   onSuccess: () => {
+  //     toast.success("Resume deleted");
+  //   },
+
+  //   // onSettled: () => {
+  //   //   qc.invalidateQueries(["resumes"]);
+  //   // },
+  // });
 
   const onDrop = useCallback((accepted) => {
     if (accepted[0]) uploadMut.mutate(accepted[0]);

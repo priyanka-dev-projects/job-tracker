@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../App";
 import { authAPI } from "../api/client";
 import toast from "react-hot-toast";
@@ -17,7 +17,6 @@ export default function RegisterPage() {
   const [form, setForm]       = useState({ name:"", email:"", password:"" });
   const [loading, setLoading] = useState(false);
   const { login }             = useAuth();
-  const navigate              = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +26,7 @@ export default function RegisterPage() {
       const res = await authAPI.register(form);
       login({ id: res.data.user_id, name: res.data.name, email: res.data.email }, res.data.access_token);
       toast.success("Account created! Welcome 🎉");
-      navigate("/");
+      window.location.href = "/";
     } catch (err) {
       toast.error(err.response?.data?.detail || "Registration failed");
     } finally {

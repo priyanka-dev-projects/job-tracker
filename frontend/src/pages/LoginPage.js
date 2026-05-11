@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../App";
 import { authAPI } from "../api/client";
 import toast from "react-hot-toast";
@@ -21,7 +21,6 @@ export default function LoginPage() {
   const [showPw, setShowPw]     = useState(false);
   const [loading, setLoading]   = useState(false);
   const { login }               = useAuth();
-  const navigate                = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +29,7 @@ export default function LoginPage() {
       const res = await authAPI.login(email, password);
       login({ id: res.data.user_id, name: res.data.name, email: res.data.email }, res.data.access_token);
       toast.success(`Welcome back, ${res.data.name}!`);
-      navigate("/");
+      window.location.href = "/";
     } catch (err) {
       toast.error(err.response?.data?.detail || "Login failed");
     } finally {

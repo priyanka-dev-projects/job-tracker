@@ -83,9 +83,34 @@ async def stats(x_user_id: str = Header(...)):
         avg_score = round(row["avg"], 1)
     return {"total": sum(counts.values()), "by_status": counts, "avg_match_score": avg_score}
 
+# @app.get("/applications")
+# async def list_applications(x_user_id: str = Header(...)):
+#     cursor = db.applications.find({"user_id": x_user_id}).sort("updated_at", -1)
+#     return [serialize(doc) async for doc in cursor]
+
 @app.get("/applications")
-async def list_applications(x_user_id: str = Header(...)):
-    cursor = db.applications.find({"user_id": x_user_id}).sort("updated_at", -1)
+async def list_applications(
+    x_user_id: str = Header(...),
+    status: Optional[str] = None,
+    search: Optional[str] = None,
+):
+    query = {
+        "user_id": x_user_id
+    }
+
+    # Filter by status
+    if status and status != "all":
+        query["status"] = status
+
+    # Search by company name
+    if search:
+        query["company"] = {
+            "$regex": search,
+            "$options": "i"
+        }
+
+    cursor = db.applications.find(query).sort("updated_at", -1)
+
     return [serialize(doc) async for doc in cursor]
 
 @app.get("/applications/{app_id}")

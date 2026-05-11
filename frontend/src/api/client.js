@@ -19,15 +19,19 @@ client.interceptors.response.use(
       window.location.href = "/login";
     }
     return Promise.reject(err);
-  }
+  },
 );
 
 export const authAPI = {
   register: (data) => client.post("/auth/register", data),
   login: (email, password) =>
-    client.post("/auth/login", new URLSearchParams({ username: email, password }), {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    }),
+    client.post(
+      "/auth/login",
+      new URLSearchParams({ username: email, password }),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      },
+    ),
   me: () => client.get("/auth/me"),
 };
 
@@ -43,7 +47,11 @@ export const resumeAPI = {
 };
 
 export const appAPI = {
-  list: () => client.get("/applications"),
+  // list: () => client.get("/applications"),
+  list: (status = "all", search = "") =>
+    client.get("/applications", {
+      params: { status, search },
+    }),
   get: (id) => client.get(`/applications/${id}`),
   create: (data) => client.post("/applications", data),
   update: (id, data) => client.patch(`/applications/${id}`, data),
