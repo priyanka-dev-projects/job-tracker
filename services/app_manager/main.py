@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 from pydantic import BaseModel
+# import asyncio
 
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
 
@@ -67,6 +68,7 @@ async def create_application(body: ApplicationCreate, x_user_id: str = Header(..
 
 @app.get("/applications/stats/overview")
 async def stats(x_user_id: str = Header(...)):
+    # await asyncio.sleep(1)
     cursor = db.applications.aggregate([
         {"$match": {"user_id": x_user_id}},
         {"$group": {"_id": "$status", "count": {"$sum": 1}}},
