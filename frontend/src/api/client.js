@@ -43,17 +43,18 @@ export const resumeAPI = {
     return client.post("/resume/upload", form, {
       headers: {
         "Content-Type": "multipart/form-data",
-        "X-User-ID": JSON.parse(localStorage.getItem("jat_user"))?.id,
+        // "X-User-ID": JSON.parse(localStorage.getItem("jat_user"))?.id,
       },
     });
   },
   // list: () => client.get("/resume"),
-  list: () =>
-    client.get("/resume/list", {
-      headers: {
-        "X-User-ID": JSON.parse(localStorage.getItem("jat_user"))?.id,
-      },
-    }),
+  list: () => client.get("/resume/list"),
+  // list: () =>
+  //   client.get("/resume/list", {
+  //     headers: {
+  //       "X-User-ID": JSON.parse(localStorage.getItem("jat_user"))?.id,
+  //     },
+  //   }),
   get: (id) => client.get(`/resumes/${id}`),
   delete: (id) => client.delete(`/resumes/${id}`),
 };
