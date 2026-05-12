@@ -41,7 +41,13 @@ export const resumeAPI = {
     form.append("file", file);
     return client.post("/resume/upload", form);
   },
-  list: () => client.get("/resume"),
+  // list: () => client.get("/resume"),
+  list: () =>
+  client.get("/resume/list", {
+    headers: {
+      "X-User-ID": JSON.parse(localStorage.getItem("jat_user"))?.id,
+    },
+  }),
   get: (id) => client.get(`/resumes/${id}`),
   delete: (id) => client.delete(`/resumes/${id}`),
 };
