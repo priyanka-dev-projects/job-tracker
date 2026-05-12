@@ -149,7 +149,7 @@ async def delete_resume(resume_id: str, current_user=Depends(get_current_user)):
     return data
 
 
-@app.post("/resumes/upload")
+@app.post("/resume/upload")
 async def upload_resume(file: UploadFile = File(...), current_user=Depends(get_current_user)):
     user_id = str(current_user["_id"])
     async with httpx.AsyncClient(timeout=60) as client:
