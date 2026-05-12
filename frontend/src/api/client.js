@@ -39,11 +39,11 @@ export const resumeAPI = {
   upload: (file) => {
     const form = new FormData();
     form.append("file", file);
-    return client.post("/resumes/upload", form);
+    return client.post("/resume/upload", form);
   },
-  list: () => client.get("/resumes"),
-  get: (id) => client.get(`/resumes/${id}`),
-  delete: (id) => client.delete(`/resumes/${id}`),
+  list: () => client.get("/resume"),
+  get: (id) => client.get(`/resume/${id}`),
+  delete: (id) => client.delete(`/resume/${id}`),
 };
 
 export const appAPI = {
