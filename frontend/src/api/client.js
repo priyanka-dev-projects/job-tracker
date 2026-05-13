@@ -55,8 +55,8 @@ export const resumeAPI = {
         "X-User-ID": JSON.parse(localStorage.getItem("jat_user"))?.id,
       },
   //   }),
-  // get: (id) => client.get(`/resumes/${id}`),
-  // delete: (id) => client.delete(`/resumes/${id}`),
+  get: (id) => client.get(`/resumes/${id}`),
+  delete: (id) => client.delete(`/resumes/${id}`),
 };
 
 export const appAPI = {
