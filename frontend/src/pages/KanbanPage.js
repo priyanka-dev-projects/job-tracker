@@ -635,7 +635,7 @@ export default function KanbanPage() {
         </DragDropContext>
       )}
 
-      {showModal && <Modal onClose={() => setShowModal(false)} />}
+      {showModal && <Modal onClose={() => setShowModal(false)} theme={theme}/>}
     </div>
   );
 }
