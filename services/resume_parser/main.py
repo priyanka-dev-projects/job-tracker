@@ -166,6 +166,26 @@ async def list_resumes(x_user_id: str = Header(...)):
 
     return resumes
 
+@app.delete("/resumes/{resume_id}")
+async def delete_resume(
+    resume_id: str,
+    x_user_id: str = Header(...)
+):
+    result = await db.resumes.delete_one({
+        "_id": ObjectId(resume_id),
+        "user_id": x_user_id
+    })
+
+    if result.deleted_count == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="Resume not found"
+        )
+
+    return {
+        "message": "Resume deleted successfully"
+    }
+
 
 @app.get("/health")
 async def health():
