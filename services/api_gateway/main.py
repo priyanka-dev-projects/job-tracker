@@ -17,8 +17,10 @@ ALGORITHM        = "HS256"
 TOKEN_EXPIRE_MIN = int(os.getenv("TOKEN_EXPIRE_MINUTES", "1440"))
 
 MONGO_URL          = os.getenv("MONGO_URL", "mongodb://localhost:27017")
-RESUME_PARSER_URL  = os.getenv("RESUME_PARSER_URL", "http://localhost:8001")
-JOB_MATCHER_URL    = os.getenv("JOB_MATCHER_URL",   "http://localhost:8002")
+# RESUME_PARSER_URL  = os.getenv("RESUME_PARSER_URL", "http://localhost:8001")
+RESUME_PARSER_URL  = os.getenv("RESUME_PARSER_URL", "https://resume-parser-73ys.onrender.com")
+# JOB_MATCHER_URL    = os.getenv("JOB_MATCHER_URL",   "http://localhost:8002")
+JOB_MATCHER_URL    = os.getenv("JOB_MATCHER_URL",   "https://job-matcher-bync.onrender.com")
 APP_MANAGER_URL    = os.getenv("APP_MANAGER_URL",    "http://localhost:8003")
 
 app = FastAPI(title="JAT API Gateway", version="1.0.0")

@@ -7,13 +7,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 import pdfplumber
-# import spacy
+import spacy
 from docx import Document
 
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
 
-# UPLOAD_DIR = "uploads"
-UPLOAD_DIR = "/tmp/uploads"
+UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 SKILLS_DICT = {
@@ -38,12 +37,12 @@ app.add_middleware(
 mongo_client = AsyncIOMotorClient(MONGO_URL)
 db = mongo_client["jat"]
 
-# try:
-#     nlp = spacy.load("en_core_web_sm")
-# except OSError:
-#     from spacy.cli import download
-#     download("en_core_web_sm")
-#     nlp = spacy.load("en_core_web_sm")
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    from spacy.cli import download
+    download("en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
