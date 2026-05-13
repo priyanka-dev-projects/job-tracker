@@ -7,16 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 import pdfplumber
-import spacy
+# import spacy
 from docx import Document
-
-from jose import jwt, JWTError
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends
 
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
 
-UPLOAD_DIR = "uploads"
+# UPLOAD_DIR = "uploads"
+UPLOAD_DIR = "/tmp/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 SKILLS_DICT = {
@@ -41,31 +38,12 @@ app.add_middleware(
 mongo_client = AsyncIOMotorClient(MONGO_URL)
 db = mongo_client["jat"]
 
-SECRET_KEY = os.getenv("JWT_SECRET", "secret")
-ALGORITHM = "HS256"
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-async def get_current_user_id(token: str = Depends(oauth2_scheme)):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-
-        user_id = payload.get("sub")
-
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
-
-        return user_id
-
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    from spacy.cli import download
-    download("en_core_web_sm")
-    nlp = spacy.load("en_core_web_sm")
+# try:
+#     nlp = spacy.load("en_core_web_sm")
+# except OSError:
+#     from spacy.cli import download
+#     download("en_core_web_sm")
+#     nlp = spacy.load("en_core_web_sm")
 
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
@@ -121,16 +99,10 @@ def parse_resume(text: str) -> dict:
     }
 
 
-# @app.post("/resume/upload")
-# async def upload_resume(
-#     file: UploadFile = File(...),
-#     x_user_id: str = Header(...)
-# ):
-
-@app.post("/resume/upload")
+@app.post("/resumes/upload")
 async def upload_resume(
     file: UploadFile = File(...),
-    user_id: str = Depends(get_current_user_id)
+    x_user_id: str = Header(...)
 ):
     file_bytes = await file.read()
 
@@ -158,8 +130,7 @@ async def upload_resume(
     parsed = parse_resume(raw_text)
 
     doc = {
-        # "user_id": x_user_id,
-        "user_id": user_id,
+        "user_id": x_user_id,
         "file_url": file_path,
         "original_filename": file.filename,
         "raw_text": raw_text,
@@ -171,8 +142,7 @@ async def upload_resume(
 
     return {
         "id": str(result.inserted_id),
-        # "user_id": x_user_id,
-        "user_id": user_id,
+        "user_id": x_user_id,
         "file_url": file_path,
         "original_filename": file.filename,
         "parsed": parsed,
@@ -180,12 +150,10 @@ async def upload_resume(
     }
 
 
-@app.get("/resume/list")
-# async def list_resumes(x_user_id: str = Header(...)):
-async def list_resumes(user_id: str = Depends(get_current_user_id)):
+@app.get("/resumes")
+async def list_resumes(x_user_id: str = Header(...)):
     cursor = db.resumes.find(
-        # {"user_id": x_user_id}
-        {"user_id": user_id}
+        {"user_id": x_user_id}
     ).sort("created_at", -1)
 
     resumes = []
