@@ -49,12 +49,12 @@ export const resumeAPI = {
   },
   // list: () => client.get("/resume"),
   list: () => client.get("/resumes"),
-  // list: () =>
-  //   client.get("/resume/list", {
-      headers: {
-        "X-User-ID": JSON.parse(localStorage.getItem("jat_user"))?.id,
-      },
-  //   }),
+  // // list: () =>
+  // //   client.get("/resume/list", {
+  //     headers: {
+  //       "X-User-ID": JSON.parse(localStorage.getItem("jat_user"))?.id,
+  //     },
+  // //   }),
   get: (id) => client.get(`/resumes/${id}`),
   delete: (id) => client.delete(`/resumes/${id}`),
 };
