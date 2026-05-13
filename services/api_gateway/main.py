@@ -145,7 +145,7 @@ async def proxy(method: str, url: str, current_user, **kwargs):
 async def delete_resume(resume_id: str, current_user=Depends(get_current_user)):
     data, _ = await proxy(
         "DELETE",
-        f"{RESUME_PARSER_URL}/resume/{resume_id}",
+        f"{RESUME_PARSER_URL}/resumes/{resume_id}",
         current_user
     )
     return data
@@ -156,17 +156,19 @@ async def upload_resume(file: UploadFile = File(...), current_user=Depends(get_c
     user_id = str(current_user["_id"])
     async with httpx.AsyncClient(timeout=60) as client:
         files = {"file": (file.filename, await file.read(), file.content_type)}
-        resp  = await client.post(f"{RESUME_PARSER_URL}/resume/upload", files=files, headers={"X-User-ID": user_id})
+        # resp  = await client.post(f"{RESUME_PARSER_URL}/resume/upload", files=files, headers={"X-User-ID": user_id})
+        resp  = await client.post(f"{RESUME_PARSER_URL}/resumes/upload", files=files, headers={"X-User-ID": user_id})
     return resp.json()
 
 @app.get("/resumes")
 async def list_resumes(current_user=Depends(get_current_user)):
-    data, _ = await proxy("GET", f"{RESUME_PARSER_URL}/resume/list", current_user)
+    # data, _ = await proxy("GET", f"{RESUME_PARSER_URL}/resume/list", current_user)
+    data, _ = await proxy("GET", f"{RESUME_PARSER_URL}/resumes", current_user)
     return data
 
 @app.get("/resumes/{resume_id}")
 async def get_resume(resume_id: str, current_user=Depends(get_current_user)):
-    data, _ = await proxy("GET", f"{RESUME_PARSER_URL}/resume/{resume_id}", current_user)
+    data, _ = await proxy("GET", f"{RESUME_PARSER_URL}/resumes/{resume_id}", current_user)
     return data
 
 
