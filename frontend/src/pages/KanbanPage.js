@@ -106,7 +106,7 @@ function Modal({ onClose, theme }) {
             <X size={16} color= "#64748b" />
           </button>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, color:theme.text }}>
           {[
             {
               key: "company",
