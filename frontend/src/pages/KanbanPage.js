@@ -132,7 +132,7 @@ function Modal({ onClose, theme }) {
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#374151",
+                  color: theme.subtext,
                   display: "block",
                   marginBottom: 4,
                 }}
@@ -155,7 +155,7 @@ function Modal({ onClose, theme }) {
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: "#374151",
+                color: theme.subtext,
                 display: "block",
                 marginBottom: 4,
               }}
@@ -181,7 +181,7 @@ function Modal({ onClose, theme }) {
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: "#374151",
+                color: theme.subtext,
                 display: "block",
                 marginBottom: 4,
               }}

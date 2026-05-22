@@ -40,7 +40,7 @@ const RED = [
 ];
 
 
-function HBar({ label, count, max, color }) {
+function HBar({ label, count, max, color, theme }) {
   const pct = max > 0 ? (count / max) * 100 : 0;
   return (
     <div
@@ -55,7 +55,7 @@ function HBar({ label, count, max, color }) {
         style={{
           width: 100,
           fontSize: 12,
-          color: "#374151",
+          color: theme.subtext,
           fontWeight: 600,
           textAlign: "right",
           flexShrink: 0,
@@ -207,10 +207,10 @@ export default function SkillsPage() {
               >
                 <XAxis
                   dataKey="skill"
-                  tick={{ fontSize: 11, fill: "#64748b" }}
+                  tick={{ fontSize: 11, fill: theme.subtext }}
                   interval={0}
                 />
-                <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
+                <YAxis tick={{ fontSize: 11, fill: theme.subtext }} />
                 <Tooltip
                   contentStyle={{
                     fontSize: 12,
@@ -263,6 +263,7 @@ export default function SkillsPage() {
                   count={count}
                   max={maxD}
                   color={PURPLE[i % PURPLE.length]}
+                  theme={theme}
                 />
               ))}
             </div>
@@ -312,6 +313,7 @@ export default function SkillsPage() {
                     count={count}
                     max={maxM}
                     color={RED[i % RED.length]}
+                    theme={theme}
                   />
                 ))
               )}
