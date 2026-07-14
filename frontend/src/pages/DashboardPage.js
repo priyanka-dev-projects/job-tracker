@@ -525,16 +525,20 @@ export default function DashboardPage() {
             <Link
               to="/applications"
               style={{
+                marginLeft: "auto",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
                 background: "#6366f1",
                 color: "#fff",
-                padding: "8px 14px",
+                padding: "10px 16px",
                 borderRadius: 8,
                 textDecoration: "none",
                 fontWeight: 600,
               }}
             >
               <Plus size={16} />
-              Add Applicationnnnnnnnnn
+              Add Application
             </Link>
 
             {apps?.length > 0 && (
