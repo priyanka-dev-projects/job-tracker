@@ -18,6 +18,33 @@ const COLUMNS = [
   { id: "rejected", label: "Rejected", color: "#ef4444" },
 ];
 
+const STATUS_STYLE = {
+  wishlist: {
+    bg: "#eff6ff",
+    text: "#3b82f6",
+  },
+  applied: {
+    bg: "#fefce8",
+    text: "#ca8a04",
+  },
+  screening: {
+    bg: "#fff7ed",
+    text: "#ea580c",
+  },
+  interview: {
+    bg: "#f0fdf4",
+    text: "#16a34a",
+  },
+  offer: {
+    bg: "#faf5ff",
+    text: "#9333ea",
+  },
+  rejected: {
+    bg: "#fef2f2",
+    text: "#dc2626",
+  },
+};
+
 function Modal({ onClose, theme }) {
   const [form, setForm] = useState({
     company: "",
@@ -527,112 +554,265 @@ export default function KanbanPage() {
       {isLoading ? (
         <Loader text="Loading applications..." />
       ) : (
-        <DragDropContext onDragEnd={onDragEnd}>
-          <div
+        // <DragDropContext onDragEnd={onDragEnd}>
+        //   <div
+        //     style={{
+        //       display: "flex",
+        //       gap: 10,
+        //       overflowX: "auto",
+        //       paddingBottom: "1rem",
+        //       alignItems: "flex-start",
+        //     }}
+        //   >
+        //     {COLUMNS.filter((col) => {
+        //       // During search hide empty columns
+        //       if (search.trim()) {
+        //         return grouped[col.id]?.length > 0;
+        //       }
+
+        //       return true;
+        //     }).map((col) => (
+        //       <div key={col.id} style={{ minWidth: 210, flex: "0 0 210px" }}>
+        //         <div
+        //           style={{
+        //             display: "flex",
+        //             alignItems: "center",
+        //             gap: 6,
+        //             marginBottom: 8,
+        //             padding: "0 2px",
+        //           }}
+        //         >
+        //           <div
+        //             style={{
+        //               width: 8,
+        //               height: 8,
+        //               borderRadius: "50%",
+        //               background: col.color,
+        //             }}
+        //           />
+        //           <span
+        //             style={{
+        //               fontSize: 12,
+        //               fontWeight: 700,
+        //               color: theme.subtext,
+        //               textTransform: "uppercase",
+        //               letterSpacing: 0.4,
+        //             }}
+        //           >
+        //             {col.label}
+        //           </span>
+        //           <span
+        //             style={{
+        //               marginLeft: "auto",
+        //               fontSize: 11,
+        //               color: theme.roundCircleText,
+        //               background: "#f1f5f9",
+        //               padding: "1px 7px",
+        //               borderRadius: 10,
+        //               fontWeight: 600,
+        //             }}
+        //           >
+        //             {grouped[col.id].length}
+        //           </span>
+        //         </div>
+        //         <Droppable droppableId={col.id}>
+        //           {(prov, snap) => (
+        //             <div
+        //               ref={prov.innerRef}
+        //               {...prov.droppableProps}
+        //               style={{
+        //                 minHeight: 120,
+        //                 borderRadius: 10,
+        //                 padding: 7,
+        //                 transition: "all 0.15s",
+        //                 background: snap.isDraggingOver ? "#eff6ff" : theme.bg,
+        //                 // border: `1.5px solid ${snap.isDraggingOver ? "#bfdbfe" : "#e2e8f0"}`,
+        //                 border: `1px solid ${theme.border}`
+        //               }}
+        //             >
+        //               {grouped[col.id].length === 0 ? (
+        //                 <div
+        //                   style={{
+        //                     minHeight: 80,
+        //                     display: "flex",
+        //                     alignItems: "center",
+        //                     justifyContent: "center",
+        //                     color: "#94a3b8",
+        //                     fontSize: 13,
+        //                     border: `1px dashed ${theme.border}`,
+        //                     borderRadius: 8,
+        //                     background: theme.card,
+        //                     marginTop: 4,
+        //                   }}
+        //                 >
+        //                   No applications yet
+        //                 </div>
+        //               ) : (
+        //                 grouped[col.id].map((app, i) => (
+        //                   <AppCard key={app.id} app={app} index={i} theme={theme}/>
+        //                 ))
+        //               )}
+        //               {prov.placeholder}
+        //             </div>
+        //           )}
+        //         </Droppable>
+        //       </div>
+        //     ))}
+        //   </div>
+        // </DragDropContext>
+        <div
+  style={{
+    background: theme.card,
+    border: `1px solid ${theme.border}`,
+    borderRadius: 12,
+    overflowX: "auto",
+    boxShadow: theme.boxShadow,
+  }}
+>
+  <table
+    style={{
+      width: "100%",
+      borderCollapse: "collapse",
+      minWidth: "900px",
+    }}
+  >
+    <thead>
+      <tr
+        style={{
+          background: theme.bg,
+          borderBottom: `2px solid ${theme.border}`,
+        }}
+      >
+        <th style={{ padding: "14px", textAlign: "left", width: "25%", color: theme.subtext }}>
+          Company
+        </th>
+
+        <th style={{ padding: "14px", textAlign: "left", width: "25%", color: theme.subtext }}>
+          Role
+        </th>
+
+        <th style={{ padding: "14px", textAlign: "left", width: "15%", color: theme.subtext }}>
+          Status
+        </th>
+
+        <th style={{ padding: "14px", textAlign: "left", width: "10%", color: theme.subtext }}>
+          Match
+        </th>
+
+        {/* <th style={{ padding: "14px", textAlign: "left", width: "10%", color: theme.subtext }}>
+          Gaps
+        </th> */}
+
+        <th style={{ padding: "14px", textAlign: "left", width: "15%", color: theme.subtext }}>
+          Actions
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {apps.length === 0 ? (
+        <tr>
+          <td
+            colSpan={6}
             style={{
-              display: "flex",
-              gap: 10,
-              overflowX: "auto",
-              paddingBottom: "1rem",
-              alignItems: "flex-start",
+              padding: 30,
+              textAlign: "center",
+              color: theme.subtext,
             }}
           >
-            {COLUMNS.filter((col) => {
-              // During search hide empty columns
-              if (search.trim()) {
-                return grouped[col.id]?.length > 0;
-              }
+            No applications found.
+          </td>
+        </tr>
+      ) : (
+        apps.map((app) => (
+          <tr
+            key={app.id}
+            style={{
+              borderBottom: `1px solid ${theme.border}`,
+            }}
+          >
+            <td style={{ padding: 14, color: theme.text, fontWeight: 600 }}>
+              {app.company}
+            </td>
 
-              return true;
-            }).map((col) => (
-              <div key={col.id} style={{ minWidth: 210, flex: "0 0 210px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    marginBottom: 8,
-                    padding: "0 2px",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      background: col.color,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: theme.subtext,
-                      textTransform: "uppercase",
-                      letterSpacing: 0.4,
-                    }}
-                  >
-                    {col.label}
-                  </span>
-                  <span
-                    style={{
-                      marginLeft: "auto",
-                      fontSize: 11,
-                      color: theme.roundCircleText,
-                      background: "#f1f5f9",
-                      padding: "1px 7px",
-                      borderRadius: 10,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {grouped[col.id].length}
-                  </span>
-                </div>
-                <Droppable droppableId={col.id}>
-                  {(prov, snap) => (
-                    <div
-                      ref={prov.innerRef}
-                      {...prov.droppableProps}
-                      style={{
-                        minHeight: 120,
-                        borderRadius: 10,
-                        padding: 7,
-                        transition: "all 0.15s",
-                        background: snap.isDraggingOver ? "#eff6ff" : theme.bg,
-                        // border: `1.5px solid ${snap.isDraggingOver ? "#bfdbfe" : "#e2e8f0"}`,
-                        border: `1px solid ${theme.border}`
-                      }}
-                    >
-                      {grouped[col.id].length === 0 ? (
-                        <div
-                          style={{
-                            minHeight: 80,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "#94a3b8",
-                            fontSize: 13,
-                            border: `1px dashed ${theme.border}`,
-                            borderRadius: 8,
-                            background: theme.card,
-                            marginTop: 4,
-                          }}
-                        >
-                          No applications yet
-                        </div>
-                      ) : (
-                        grouped[col.id].map((app, i) => (
-                          <AppCard key={app.id} app={app} index={i} theme={theme}/>
-                        ))
-                      )}
-                      {prov.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-            ))}
-          </div>
-        </DragDropContext>
+            <td style={{ padding: 14, color: theme.text }}>
+              {app.role}
+            </td>
+
+            {/* <td style={{ padding: 14 }}>
+              <span
+                style={{
+                  background:
+                    app.status === "wishlist"
+                      ? "#3b82f6"
+                      : app.status === "applied"
+                      ? "#f59e0b"
+                      : app.status === "screening"
+                      ? "#f97316"
+                      : app.status === "interview"
+                      ? "#22c55e"
+                      : app.status === "offer"
+                      ? "#a855f7"
+                      : "#ef4444",
+                  color: "#fff",
+                  padding: "4px 10px",
+                  borderRadius: 20,
+                  fontSize: 12,
+                  textTransform: "capitalize",
+                }}
+              >
+                {app.status}
+              </span>
+            </td> */}
+            <td style={{ padding: 14 }}>
+  {(() => {
+    const style =
+      STATUS_STYLE[app.status?.toLowerCase()] || STATUS_STYLE.applied;
+
+    return (
+      <span
+        style={{
+          background: style.bg,
+          color: style.text,
+          padding: "4px 10px",
+          borderRadius: 20,
+          fontSize: 12,
+          fontWeight: 600,
+          textTransform: "capitalize",
+        }}
+      >
+        {app.status}
+      </span>
+    );
+  })()}
+</td>
+
+            <td style={{ padding: 14, color: theme.text }}>
+              {app.match_score ?? "-"}%
+            </td>
+
+            {/* <td style={{ padding: 14, color: theme.text }}>
+              {app.skill_gaps?.length ?? 0}
+            </td> */}
+
+            <td style={{ padding: 14 }}>
+              <Link
+                to={`/apps/${app.id}`}
+                style={{
+                  color: "#6366f1",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                }}
+              >
+                View
+              </Link>
+            </td>
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
       )}
 
       {showModal && <Modal onClose={() => setShowModal(false)} theme={theme}/>}

@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 
 from fastapi import FastAPI, HTTPException, Header
@@ -40,20 +40,50 @@ class StatusUpdate(BaseModel):
     note:   Optional[str] = None
 
 
+# def serialize(doc: dict) -> dict:
+#     doc["id"] = str(doc.pop("_id"))
+#     for k in ("created_at", "updated_at"):
+#         if isinstance(doc.get(k), datetime):
+#             doc[k] = doc[k].isoformat()
+#     for e in doc.get("timeline", []):
+#         if isinstance(e.get("timestamp"), datetime):
+#             e["timestamp"] = e["timestamp"].isoformat()
+#     return doc
+
 def serialize(doc: dict) -> dict:
     doc["id"] = str(doc.pop("_id"))
-    for k in ("created_at", "updated_at"):
-        if isinstance(doc.get(k), datetime):
-            doc[k] = doc[k].isoformat()
-    for e in doc.get("timeline", []):
-        if isinstance(e.get("timestamp"), datetime):
-            e["timestamp"] = e["timestamp"].isoformat()
-    return doc
 
+    for key in ("created_at", "updated_at"):
+        value = doc.get(key)
+
+        if isinstance(value, datetime):
+
+            # MongoDB returns UTC datetime without tzinfo.
+            # Explicitly mark it as UTC before sending to frontend.
+            if value.tzinfo is None:
+                value = value.replace(tzinfo=timezone.utc)
+
+            doc[key] = value.isoformat()
+
+    for entry in doc.get("timeline", []):
+        timestamp = entry.get("timestamp")
+
+        if isinstance(timestamp, datetime):
+
+            # Explicitly mark MongoDB datetime as UTC.
+            if timestamp.tzinfo is None:
+                timestamp = timestamp.replace(
+                    tzinfo=timezone.utc
+                )
+
+            entry["timestamp"] = timestamp.isoformat()
+
+    return doc
 
 @app.post("/applications")
 async def create_application(body: ApplicationCreate, x_user_id: str = Header(...)):
-    now    = datetime.utcnow()
+    # now    = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     status = body.status if body.status in VALID_STATUSES else "wishlist"
     doc    = {
         "user_id": x_user_id, "company": body.company, "role": body.role,
@@ -122,8 +152,8 @@ async def get_application(app_id: str, x_user_id: str = Header(...)):
         raise HTTPException(status_code=404, detail="Application not found")
     return serialize(doc)
 
-@app.patch("/applications/{app_id}/status")
-async def update_status(app_id: str, body: StatusUpdate, x_user_id: str = Header(...)):
+# @app.patch("/applications/{app_id}/status")
+# async def update_status(app_id: str, body: StatusUpdate, x_user_id: str = Header(...)):
     if body.status not in VALID_STATUSES:
         raise HTTPException(status_code=400, detail=f"Invalid status")
     now = datetime.utcnow()
@@ -137,12 +167,68 @@ async def update_status(app_id: str, body: StatusUpdate, x_user_id: str = Header
     doc = await db.applications.find_one({"_id": ObjectId(app_id)})
     return serialize(doc)
 
+@app.patch("/applications/{app_id}/status")
+async def update_status(
+    app_id: str,
+    body: StatusUpdate,
+    x_user_id: str = Header(...),
+):
+    if not ObjectId.is_valid(app_id):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid application ID",
+        )
+
+    if body.status not in VALID_STATUSES:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid status",
+        )
+
+    now = datetime.now(timezone.utc)
+
+    result = await db.applications.update_one(
+        {
+            "_id": ObjectId(app_id),
+            "user_id": x_user_id,
+        },
+        {
+            "$set": {
+                "status": body.status,
+                "updated_at": now,
+            },
+            "$push": {
+                "timeline": {
+                    "status": body.status,
+                    "timestamp": now,
+                    "note": body.note,
+                }
+            },
+        },
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="Application not found",
+        )
+
+    updated_application = await db.applications.find_one(
+        {
+            "_id": ObjectId(app_id),
+            "user_id": x_user_id,
+        }
+    )
+
+    return serialize(updated_application)
+
 @app.patch("/applications/{app_id}")
 async def update_application(app_id: str, body: ApplicationUpdate, x_user_id: str = Header(...)):
     update = {k: v for k, v in body.model_dump().items() if v is not None}
     if not update:
         raise HTTPException(status_code=400, detail="Nothing to update")
-    update["updated_at"] = datetime.utcnow()
+    # update["updated_at"] = datetime.utcnow()
+    update["updated_at"] = datetime.now(timezone.utc)
     result = await db.applications.update_one(
         {"_id": ObjectId(app_id), "user_id": x_user_id}, {"$set": update}
     )

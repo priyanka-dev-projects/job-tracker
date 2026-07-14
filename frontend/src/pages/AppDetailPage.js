@@ -17,6 +17,15 @@ import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "../App";
 import Loader from "../components/Loader";
 
+const STATUS_BG = {
+  wishlist: "#dbeafe",
+  applied: "#fef3c7",
+  screening: "#ffedd5",
+  interview: "#dcfce7",
+  offer: "#f3e8ff",
+  rejected: "#fee2e2",
+};
+
 const STATUS_COLOR = {
   wishlist: "#3b82f6",
   applied: "#f59e0b",
@@ -25,7 +34,25 @@ const STATUS_COLOR = {
   offer: "#a855f7",
   rejected: "#ef4444",
 };
-const STATUSES = [
+// const STATUSES = [
+//   "wishlist",
+//   "applied",
+//   "screening",
+//   "interview",
+//   "offer",
+//   "rejected",
+// ];
+
+// const STATUS_FLOW = {
+//   wishlist: ["wishlist", "applied"],
+//   applied: ["applied", "screening"],
+//   screening: ["screening", "interview"],
+//   interview: ["interview", "offer", "rejected"],
+//   offer: ["offer"],
+//   rejected: ["rejected"],
+// };
+
+const STAGES = [
   "wishlist",
   "applied",
   "screening",
@@ -33,6 +60,15 @@ const STATUSES = [
   "offer",
   "rejected",
 ];
+
+const STATUS_FLOW = {
+  wishlist: ["wishlist", "applied"],
+  applied: ["applied", "screening"],
+  screening: ["screening", "interview"],
+  interview: ["interview", "offer", "rejected"],
+  offer: ["offer", "rejected"], // <-- allow rejection after offer
+  rejected: ["rejected"], // terminal stage
+};
 
 export default function AppDetailPage() {
   const { id } = useParams();
@@ -57,40 +93,135 @@ export default function AppDetailPage() {
     enabled: !!user?.id,
   });
 
+  // const statusMut = useMutation({
+  //   mutationFn: (status) => appAPI.updateStatus(id, status),
+  //   onSuccess: () => {
+  //     qc.invalidateQueries(["app", id]);
+  //     qc.invalidateQueries(["apps"]);
+  //     qc.invalidateQueries(["stats"]);
+  //   },
+  //   onError: () => toast.error("Failed to update status"),
+  // });
+
   const statusMut = useMutation({
     mutationFn: (status) => appAPI.updateStatus(id, status),
-    onSuccess: () => {
-      qc.invalidateQueries(["app", id]);
-      qc.invalidateQueries(["apps"]);
-      qc.invalidateQueries(["stats"]);
+
+    onSuccess: async () => {
+      await qc.invalidateQueries({
+        queryKey: ["app", user?.id, id],
+      });
+
+      await qc.invalidateQueries({
+        queryKey: ["apps"],
+      });
+
+      await qc.invalidateQueries({
+        queryKey: ["stats"],
+      });
+
+      toast.success("Status updated");
     },
-    onError: () => toast.error("Failed to update status"),
+
+    onError: () => {
+      toast.error("Failed to update status");
+    },
   });
 
   const updateMut = useMutation({
     mutationFn: (data) => appAPI.update(id, data),
     onSuccess: () => {
-      qc.invalidateQueries(["app", id]);
+      // qc.invalidateQueries(["app", id]);
+      qc.invalidateQueries({
+        queryKey: ["app", user?.id, id],
+      });
       setEditing(false);
       toast.success("Saved");
     },
     onError: () => toast.error("Update failed"),
   });
 
-  const deleteMut = useMutation({
-    mutationFn: () => appAPI.delete(id),
-    onSuccess: () => {
-      toast.success("Application deleted");
-      navigate("/kanban");
-    },
-    onError: () => toast.error("Delete failed"),
-  });
+  // const deleteMut = useMutation({
+  //   mutationFn: () => appAPI.delete(id),
+  //   onSuccess: () => {
+  //     toast.success("Application deleted");
+  //     navigate("/kanban");
+  //   },
+  //   onError: () => toast.error("Delete failed"),
+  // });
+
+//   const deleteMut = useMutation({
+//   mutationFn: () => appAPI.delete(id),
+
+//   onSuccess: async () => {
+//     toast.success("Application deleted successfully");
+
+//     // Refetch application lists so the deleted application disappears.
+//     await queryClient.invalidateQueries({
+//       queryKey: ["applications"],
+//     });
+
+//     // Remove deleted application's detail cache.
+//     queryClient.removeQueries({
+//       queryKey: ["application", id],
+//       exact: true,
+//     });
+
+//     // Go back to dashboard after cache is updated.
+//     navigate("/");
+//   },
+
+//   onError: (error) => {
+//     console.error("DELETE APPLICATION ERROR:", error);
+
+//     toast.error(
+//       error.message || "Failed to delete application"
+//     );
+//   },
+// });
+
+const deleteMut = useMutation({
+  mutationFn: () => appAPI.delete(id),
+
+  onSuccess: async () => {
+    // Remove the deleted application's detail cache.
+    qc.removeQueries({
+      queryKey: ["app", user?.id, id],
+      exact: true,
+    });
+
+    // Your application-list query key is ["apps"], not ["applications"].
+    await qc.invalidateQueries({
+      queryKey: ["apps"],
+    });
+
+    // Refresh dashboard statistics.
+    await qc.invalidateQueries({
+      queryKey: ["stats"],
+    });
+
+    toast.success("Application deleted successfully");
+
+    navigate("/");
+  },
+
+  onError: (error) => {
+    console.error("DELETE APPLICATION ERROR:", error);
+
+    toast.error(
+      error.message || "Failed to delete application"
+    );
+  },
+});
+
 
   const matchMut = useMutation({
     mutationFn: () => matchAPI.match(selectedResume, id, jdText),
     onSuccess: (res) => {
       setMatch(res.data);
-      qc.invalidateQueries(["app", id]);
+      // qc.invalidateQueries(["app", id]);
+      qc.invalidateQueries({
+        queryKey: ["app", user?.id, id],
+      });
       toast.success(`Match: ${res.data.match_score}%`);
     },
     onError: () =>
@@ -131,7 +262,9 @@ export default function AppDetailPage() {
   };
 
   return (
-    <div style={{ maxWidth: 900 }}>
+    <div style={{ width: "100%",
+      maxWidth: "100%",
+      boxSizing: "border-box", }}>
       {/* Header */}
       <div
         style={{
@@ -285,13 +418,145 @@ export default function AppDetailPage() {
             </button>
           )}
         </div>
+
+        {/* Delete */}
+          <button
+            onClick={() => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this application?"
+      )
+    ) {
+      deleteMut.mutate();
+    }
+  }}
+  disabled={deleteMut.isPending}
+            style={{
+              padding: "0.65rem",
+              color: "#fef2f2",
+              border: "1px solid #fecaca",
+              borderRadius: 10,
+              background: "#ef4444",
+              fontWeight: 600,
+              cursor: "pointer",
+              fontSize: 13,
+            }}
+          >
+            {deleteMut.isPending
+    ? "Deleting..."
+    : "Delete application"}
+          </button>
+      </div>
+
+      {/* Application Details */}
+
+      <div
+        style={{
+          background: theme.card,
+          border: `1px solid ${theme.border}`,
+          borderRadius: 14,
+          padding: "1.25rem",
+          marginBottom: 16,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: "#94a3b8",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            marginBottom: 18,
+          }}
+        >
+          Application Details
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "180px 1fr 180px 1fr",
+            rowGap: 14,
+            columnGap: 25,
+            fontSize: 14,
+          }}
+        >
+          <strong style={{ color: theme.subtext }}>Company</strong>
+          <span>{app.company}</span>
+
+          <strong style={{ color: theme.subtext }}>Role</strong>
+          <span>{app.role}</span>
+
+          <strong style={{ color: theme.subtext }}>Current Stage</strong>
+          <span
+            style={{
+              color: STATUS_COLOR[app.status],
+              fontWeight: 700,
+              textTransform: "capitalize",
+            }}
+          >
+            {app.status}
+          </span>
+
+          <strong style={{ color: theme.subtext }}>Match Score</strong>
+          <span
+            style={{
+              fontWeight: 800,
+              color:
+                score >= 80 ? "#22c55e" : score >= 60 ? "#f59e0b" : "#ef4444",
+            }}
+          >
+            {score != null ? `${score}%` : "Not Analyzed"}
+          </span>
+
+          <strong style={{ color: theme.subtext }}>Applied On</strong>
+          <span>
+            {app.created_at
+              ? new Date(app.created_at).toLocaleDateString()
+              : "-"}
+          </span>
+
+          <strong style={{ color: theme.subtext }}>Last Updated</strong>
+          <span>
+            {app.updated_at
+              ? new Date(app.updated_at).toLocaleDateString()
+              : "-"}
+          </span>
+
+          {/* <strong style={{ color: theme.subtext }}>Job Posting</strong>
+
+          <span>
+            {app.job_url ? (
+              <a
+                href={app.job_url}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  color: "#2563eb",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                }}
+              >
+                Open Posting
+              </a>
+            ) : (
+              "-"
+            )}
+          </span>
+
+          <strong style={{ color: theme.subtext }}>Notes</strong>
+
+          <span>
+            {app.notes ? `${app.notes.substring(0, 60)}...` : "No notes"}
+          </span> */}
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         {/* Left */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {/* Status */}
-          <div
+          {/* <div
             style={{
               background: theme.card,
               border: `1px solid ${theme.border}`,
@@ -312,35 +577,205 @@ export default function AppDetailPage() {
               Stage
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {STATUSES.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => statusMut.mutate(s)}
-                  style={{
-                    padding: "5px 12px",
-                    borderRadius: 20,
-                    border: "none",
-                    cursor: "pointer",
-                    fontWeight: 600,
-                    fontSize: 12,
-                    textTransform: "capitalize",
-                    transition: "all 0.1s",
-                    background: app.status === s ? STATUS_COLOR[s] : "#f1f5f9",
-                    color: app.status === s ? "#fff" : "#374151",
-                    boxShadow:
-                      app.status === s
-                        ? `0 2px 8px ${STATUS_COLOR[s]}40`
-                        : "none",
-                  }}
-                >
-                  {s}
-                </button>
-              ))}
+              {Object.keys(STATUS_COLOR).map((s) => {
+                const allowed = STATUS_FLOW[app.status]?.includes(s);
+
+                return (
+                  <button
+                    key={s}
+                    disabled={!allowed}
+                    onClick={() => {
+                      if (allowed) statusMut.mutate(s);
+                    }}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: 20,
+                      border: "none",
+                      cursor: allowed ? "pointer" : "not-allowed",
+                      fontWeight: 600,
+                      fontSize: 12,
+                      textTransform: "capitalize",
+                      transition: "0.2s",
+                      opacity: allowed ? 1 : 0.35,
+                      background:
+                        app.status === s ? STATUS_COLOR[s] : "#f1f5f9",
+                      color: app.status === s ? "#fff" : "#374151",
+                    }}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          </div> */}
+
+          {/* Application Progress */}
+
+          <div
+            style={{
+              background: theme.card,
+              border: `1px solid ${theme.border}`,
+              borderRadius: 14,
+              padding: "1.2rem",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#94a3b8",
+                marginBottom: 20,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
+              Application Progress
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                position: "relative",
+                marginBottom: 30,
+              }}
+            >
+              {STAGES.map((stage, index) => {
+                const currentIndex = STAGES.indexOf(app.status);
+
+                const completed = index < currentIndex;
+                const active = index === currentIndex;
+
+                return (
+                  <React.Fragment key={stage}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        flex: 1,
+                        zIndex: 2,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 34,
+                          height: 34,
+                          borderRadius: "50%",
+                          background: completed
+                            ? "#22c55e"
+                            : active
+                              ? STATUS_COLOR[stage]
+                              : "#e5e7eb",
+                          color: "#fff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontWeight: 700,
+                          fontSize: 14,
+                          margin: "0px 3px 0px 3px",
+                        }}
+                      >
+                        {completed ? "✓" : ""}
+                      </div>
+
+                      <span
+                        style={{
+                          marginTop: 8,
+                          fontSize: 11,
+                          fontWeight: active ? 700 : 500,
+                          textTransform: "capitalize",
+                          color: active ? STATUS_COLOR[stage] : theme.subtext,
+                        }}
+                      >
+                        {stage}
+                      </span>
+                    </div>
+
+                    {index !== STAGES.length - 1 && (
+                      <div
+                        style={{
+                          flex: 1,
+                          height: 4,
+                          background:
+                            index < currentIndex ? "#22c55e" : "#e5e7eb",
+                          marginTop: -22,
+                        }}
+                      />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+
+            <div
+              style={{
+                padding: 15,
+                borderRadius: 10,
+                background: "#f8fafc",
+                border: `1px solid ${theme.border}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  marginBottom: 10,
+                }}
+              >
+                Current Stage
+              </div>
+
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "5px 16px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: STATUS_COLOR[app.status],
+                  color: "#fff",
+                  fontWeight: 600,
+                  textTransform: "capitalize",
+                }}
+              >
+                {app.status}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  marginTop: 20,
+                  flexWrap: "wrap",
+                }}
+              >
+                {STATUS_FLOW[app.status]
+                  ?.filter((s) => s !== app.status)
+                  .map((nextStage) => (
+                    <button
+                      key={nextStage}
+                      onClick={() => statusMut.mutate(nextStage)}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: 8,
+                        border: "none",
+                        cursor: "pointer",
+                        background: STATUS_COLOR[nextStage],
+                        color: "#fff",
+                        fontWeight: 600,
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {nextStage}
+                    </button>
+                  ))}
+              </div>
             </div>
           </div>
 
           {/* Match score */}
-          {score != null && (
+          {/* {score != null && (
             <div
               style={{
                 background: theme.card,
@@ -412,7 +847,243 @@ export default function AppDetailPage() {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
+
+          {/* <div
+            style={{
+              background: theme.card,
+              border: `1px solid ${theme.border}`,
+              borderRadius: 14,
+              padding: "1.2rem",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#94a3b8",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginBottom: 18,
+              }}
+            >
+              Application Information
+            </div>
+
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: 13,
+              }}
+            >
+              <tbody>
+                <tr>
+                  <td style={{ padding: "10px", color: theme.subtext }}>
+                    Company
+                  </td>
+
+                  <td style={{ padding: "10px", fontWeight: 600 }}>
+                    {app.company}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style={{ padding: "10px", color: theme.subtext }}>
+                    Role
+                  </td>
+
+                  <td style={{ padding: "10px", fontWeight: 600 }}>
+                    {app.role}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style={{ padding: "10px", color: theme.subtext }}>
+                    Current Stage
+                  </td>
+
+                  <td style={{ padding: "10px" }}>
+                    <span
+                      style={{
+                        background: STATUS_BG[app.status],
+                        color: STATUS_COLOR[app.status],
+                        padding: "5px 10px",
+                        borderRadius: 20,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {app.status}
+                    </span>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style={{ padding: "10px", color: theme.subtext }}>
+                    Match Score
+                  </td>
+
+                  <td
+                    style={{
+                      padding: "10px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {app.match_score ?? "-"}%
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div> */}
+
+          {/* Resume Match */}
+
+          {/* {score != null && (
+            <div
+              style={{
+                background: theme.card,
+                border: `1px solid ${theme.border}`,
+                borderRadius: 14,
+                padding: "1.2rem",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "#94a3b8",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  marginBottom: 20,
+                }}
+              >
+                Resume Analysis
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "120px 1fr",
+                  gap: 20,
+                  alignItems: "center",
+                }}
+              >
+                <div
+                  style={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: "50%",
+                    border: `8px solid ${
+                      score >= 80
+                        ? "#22c55e"
+                        : score >= 60
+                          ? "#f59e0b"
+                          : "#ef4444"
+                    }`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 26,
+                    fontWeight: 800,
+                    color:
+                      score >= 80
+                        ? "#22c55e"
+                        : score >= 60
+                          ? "#f59e0b"
+                          : "#ef4444",
+                  }}
+                >
+                  {score}%
+                </div>
+
+                <div>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr auto",
+                      rowGap: 10,
+                      fontSize: 14,
+                    }}
+                  >
+                    <span>Matched Skills</span>
+
+                    <strong style={{ color: "#22c55e" }}>
+                      {result.matched_skills?.length || 0}
+                    </strong>
+
+                    <span>Missing Skills</span>
+
+                    <strong style={{ color: "#ef4444" }}>
+                      {result.missing_skills?.length || 0}
+                    </strong>
+
+                    <span>Overall Rating</span>
+
+                    <strong
+                      style={{
+                        color:
+                          score >= 80
+                            ? "#22c55e"
+                            : score >= 60
+                              ? "#f59e0b"
+                              : "#ef4444",
+                      }}
+                    >
+                      {score >= 80
+                        ? "Excellent"
+                        : score >= 60
+                          ? "Good"
+                          : "Needs Improvement"}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 20,
+                  height: 10,
+                  background: "#e5e7eb",
+                  borderRadius: 6,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${score}%`,
+                    height: "100%",
+                    background:
+                      score >= 80
+                        ? "#22c55e"
+                        : score >= 60
+                          ? "#f59e0b"
+                          : "#ef4444",
+                    transition: "0.5s",
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  marginTop: 10,
+                  fontSize: 13,
+                  color: theme.subtext,
+                }}
+              >
+                {score >= 80 &&
+                  "Excellent profile match. You have a strong chance for this role."}
+
+                {score >= 60 &&
+                  score < 80 &&
+                  "Good profile. Learning the missing skills can improve your chances."}
+
+                {score < 60 &&
+                  "Several important skills are missing. Consider improving before applying."}
+              </div>
+            </div>
+          )} */}
 
           {/* Notes */}
           {(app.notes || editing) && (
@@ -461,7 +1132,7 @@ export default function AppDetailPage() {
           )}
 
           {/* Timeline */}
-          <div
+          {/* <div
             style={{
               background: theme.card,
               border: `1px solid ${theme.border}`,
@@ -535,7 +1206,11 @@ export default function AppDetailPage() {
                   </div>
                   {e.note && (
                     <div
-                      style={{ fontSize: 12, color: theme.subtext, marginTop: 2 }}
+                      style={{
+                        fontSize: 12,
+                        color: theme.subtext,
+                        marginTop: 2,
+                      }}
                     >
                       {e.note}
                     </div>
@@ -543,10 +1218,130 @@ export default function AppDetailPage() {
                 </div>
               </div>
             ))}
+          </div> */}
+          {/* Status History */}
+
+          <div
+            style={{
+              background: theme.card,
+              border: `1px solid ${theme.border}`,
+              borderRadius: 14,
+              padding: "1.2rem",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#94a3b8",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginBottom: 18,
+              }}
+            >
+              Status History
+            </div>
+
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: 13,
+              }}
+            >
+              <thead>
+                <tr
+                  style={{
+                    background: "#f8fafc",
+                  }}
+                >
+                  <th style={{ padding: 10, textAlign: "left" }}>Stage</th>
+                  <th style={{ padding: 10, textAlign: "left" }}>Date</th>
+                  <th style={{ padding: 10, textAlign: "left" }}>Time</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {[...(app.timeline || [])].reverse().map((item, index) => {
+                  const date = new Date(item.timestamp);
+
+                  return (
+                    <tr key={index}>
+                      <td
+                        style={{
+                          padding: 10,
+                          borderBottom: `1px solid ${theme.border}`,
+                        }}
+                      >
+                        {/* <span
+                style={{
+                  background: STATUS_COLOR[item.status],
+                  color: "#fff",
+                  padding: "4px 10px",
+                  borderRadius: 20,
+                  fontSize: 12,
+                  textTransform: "capitalize",
+                }}
+              >
+                {item.status}
+              </span> */}
+
+                        <span
+                          style={{
+                            background: STATUS_BG[item.status],
+                            color: STATUS_COLOR[item.status],
+                            padding: "5px 12px",
+                            borderRadius: 20,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            textTransform: "capitalize",
+                            display: "inline-block",
+                          }}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
+
+                      <td
+                        style={{
+                          padding: 10,
+                          borderBottom: `1px solid ${theme.border}`,
+                        }}
+                      >
+                        {date.toLocaleDateString("en-IN", {
+                          timeZone: "Asia/Kolkata",
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </td>
+
+                      <td
+                        style={{
+                          padding: 10,
+                          borderBottom: `1px solid ${theme.border}`,
+                        }}
+                      >
+                        {/* {date.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })} */}
+                        {date.toLocaleTimeString("en-IN", {
+                          timeZone: "Asia/Kolkata",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
 
           {/* Delete */}
-          <button
+          {/* <button
             onClick={() => {
               if (window.confirm("Delete this application?"))
                 deleteMut.mutate();
@@ -563,7 +1358,7 @@ export default function AppDetailPage() {
             }}
           >
             Delete application
-          </button>
+          </button> */}
         </div>
 
         {/* Right — JD matcher */}
@@ -589,7 +1384,19 @@ export default function AppDetailPage() {
                 marginBottom: 12,
               }}
             >
-              <Zap size={12} color="#6366f1" /> Job description matcher
+              {/* <Zap size={12} color="#6366f1" /> Job description matcher */}
+              <Zap size={14} color="#6366f1" />
+              AI Resume Analyzer
+            </div>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                marginBottom: 6,
+                color: theme.text,
+              }}
+            >
+              Resume
             </div>
             <select
               style={{ ...inp, marginBottom: 10 }}
@@ -603,13 +1410,28 @@ export default function AppDetailPage() {
                 </option>
               ))}
             </select>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                marginBottom: 6,
+                marginTop: 14,
+                color: theme.text,
+              }}
+            >
+              Job Description
+            </div>
             <textarea
               placeholder="Paste the full job description here…"
               value={jdText}
               onChange={(e) => setJdText(e.target.value)}
               style={{
                 ...inp,
-                minHeight: 150,
+                // minHeight: 150,
+                minHeight: 220,
+                lineHeight: 1.6,
+                fontSize: 14,
+                padding: "14px",
                 resize: "vertical",
                 marginBottom: 10,
               }}
@@ -623,18 +1445,173 @@ export default function AppDetailPage() {
                 background: "#6366f1",
                 color: "#fff",
                 border: "none",
-                borderRadius: 10,
-                fontWeight: 700,
                 cursor: "pointer",
-                fontSize: 13,
                 opacity: !jdText.trim() || !selectedResume ? 0.5 : 1,
+                padding: "12px",
+                fontSize: 14,
+                fontWeight: 700,
+                borderRadius: 12,
+                marginTop: 15,
               }}
             >
-              {matchMut.isPending ? "Analyzing…" : "⚡ Analyze match"}
+              {matchMut.isPending ? "Analyzing Resume..." : "Analyze Resume"}
             </button>
+
+            {/* {matchResult && (
+              // <div
+              //   style={{
+              //     marginTop: 20,
+              //     padding: "18px",
+              //     borderRadius: 12,
+              //     background: "#f8fafc",
+              //     border: `1px solid ${theme.border}`,
+              //   }}
+              // >
+              //   <h4>AI Recommendation</h4>
+
+              //   <p>
+              //     {matchResult.match_score >= 80 &&
+              //       "Excellent match. Highly recommended to apply."}
+
+              //     {matchResult.match_score >= 60 &&
+              //       matchResult.match_score < 80 &&
+              //       "Good match. Improve missing skills before interview."}
+
+              //     {matchResult.match_score < 60 &&
+              //       "Low match. Consider improving your resume or skills."}
+              //   </p>
+              // </div>
+
+              <div
+  style={{
+    padding: 20,
+    borderRadius: 12,
+    background: theme.bg,
+    border: `1px solid ${theme.border}`,
+  }}
+>
+  <div
+    style={{
+      fontSize: 12,
+      color: theme.subtext,
+      fontWeight: 600,
+      marginBottom: 8,
+      textTransform: "uppercase",
+      letterSpacing: 1,
+    }}
+  >
+    Current Status
+  </div>
+
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 20,
+    }}
+  >
+    <span
+      style={{
+        background: STATUS_BG[app.status],
+        color: STATUS_COLOR[app.status],
+        padding: "8px 18px",
+        borderRadius: 25,
+        fontWeight: 700,
+        fontSize: 14,
+        textTransform: "capitalize",
+      }}
+    >
+      {app.status}
+    </span>
+
+    <div
+      style={{
+        fontSize: 13,
+        color: theme.subtext,
+      }}
+    >
+      {app.timeline?.length || 1} Updates
+    </div>
+  </div>
+
+  <div
+    style={{
+      fontSize: 13,
+      color: theme.subtext,
+      lineHeight: 1.6,
+      marginBottom: 20,
+    }}
+  >
+    {app.status === "wishlist" &&
+      "This application is saved for future submission."}
+
+    {app.status === "applied" &&
+      "Application has been submitted successfully."}
+
+    {app.status === "screening" &&
+      "Recruiters are reviewing your application."}
+
+    {app.status === "interview" &&
+      "Interview process is currently in progress."}
+
+    {app.status === "offer" &&
+      "Congratulations! You have received an offer."}
+
+    {app.status === "rejected" &&
+      "This application has been closed."}
+  </div>
+
+  <div
+    style={{
+      display: "flex",
+      gap: 10,
+      flexWrap: "wrap",
+    }}
+  >
+    {STATUS_FLOW[app.status]
+      ?.filter((s) => s !== app.status)
+      .map((nextStage) => (
+        <button
+          key={nextStage}
+          onClick={() => statusMut.mutate(nextStage)}
+          style={{
+            background: STATUS_COLOR[nextStage],
+            color: "#fff",
+            border: "none",
+            borderRadius: 10,
+            padding: "10px 18px",
+            cursor: "pointer",
+            fontWeight: 600,
+            fontSize: 13,
+          }}
+        >
+          {nextStage}
+        </button>
+      ))}
+  </div>
+</div>
+            )} */}
+            {matchResult && (
+              <div
+                style={{
+                  marginTop: 20,
+                  padding: "18px",
+                  borderRadius: 12,
+                  background: theme.bg,
+                  border: `1px solid ${theme.border}`,
+                }}
+              >
+                <h4 style={{ color: theme.text }}>AI Recommendation</h4>
+
+                <p style={{ color: theme.subtext }}>
+                  {matchResult.recommendation}
+                </p>
+              </div>
+            )}
           </div>
 
-          {(result.matched_skills?.length > 0 ||
+          {/* {(result.matched_skills?.length > 0 ||
             result.missing_skills?.length > 0) && (
             <div
               style={{
@@ -737,9 +1714,562 @@ export default function AppDetailPage() {
                 </div>
               )}
             </div>
+          )} */}
+
+          {(result.matched_skills?.length > 0 ||
+            result.missing_skills?.length > 0) && (
+            <div
+              style={{
+                background: theme.card,
+                border: `1px solid ${theme.border}`,
+                borderRadius: 14,
+                padding: "1.3rem",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "#94a3b8",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  marginBottom: 20,
+                }}
+              >
+                Skill Analysis
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 20,
+                }}
+              >
+                {/* Matched */}
+
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: 15,
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: "#16a34a",
+                        fontWeight: 700,
+                      }}
+                    >
+                      ✓ Matched Skills
+                    </span>
+
+                    <span
+                      style={{
+                        color: "#16a34a",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {result.matched_skills?.length || 0}
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 8,
+                    }}
+                  >
+                    {result.matched_skills?.map((skill) => (
+                      <span
+                        key={skill}
+                        style={{
+                          padding: "7px 12px",
+                          borderRadius: 20,
+                          background: "#dcfce7",
+                          color: "#15803d",
+                          fontWeight: 600,
+                          fontSize: 12,
+                        }}
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Missing */}
+
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: 15,
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: "#dc2626",
+                        fontWeight: 700,
+                      }}
+                    >
+                      ✗ Missing Skills
+                    </span>
+
+                    <span
+                      style={{
+                        color: "#dc2626",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {result.missing_skills?.length || 0}
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 8,
+                    }}
+                  >
+                    {result.missing_skills?.map((skill) => (
+                      <span
+                        key={skill}
+                        style={{
+                          padding: "7px 12px",
+                          borderRadius: 20,
+                          background: "#fee2e2",
+                          color: "#b91c1c",
+                          fontWeight: 600,
+                          fontSize: 12,
+                        }}
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
+
       </div>
+
+      {/* Resume Match */}
+
+        {/* {score != null && (
+          <div
+            style={{
+              background: theme.card,
+              border: `1px solid ${theme.border}`,
+              borderRadius: 14,
+              padding: "1.2rem",
+              width: "100%",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#94a3b8",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginBottom: 20,
+              }}
+            >
+              Resume Analysis
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "120px 1fr",
+                gap: 20,
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: "50%",
+                  border: `8px solid ${
+                    score >= 80
+                      ? "#22c55e"
+                      : score >= 60
+                        ? "#f59e0b"
+                        : "#ef4444"
+                  }`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 26,
+                  fontWeight: 800,
+                  color:
+                    score >= 80
+                      ? "#22c55e"
+                      : score >= 60
+                        ? "#f59e0b"
+                        : "#ef4444",
+                }}
+              >
+                {score}%
+              </div>
+
+              <div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr auto",
+                    rowGap: 10,
+                    fontSize: 14,
+                  }}
+                >
+                  <span>Matched Skills</span>
+
+                  <strong style={{ color: "#22c55e" }}>
+                    {result.matched_skills?.length || 0}
+                  </strong>
+
+                  <span>Missing Skills</span>
+
+                  <strong style={{ color: "#ef4444" }}>
+                    {result.missing_skills?.length || 0}
+                  </strong>
+
+                  <span>Overall Rating</span>
+
+                  <strong
+                    style={{
+                      color:
+                        score >= 80
+                          ? "#22c55e"
+                          : score >= 60
+                            ? "#f59e0b"
+                            : "#ef4444",
+                    }}
+                  >
+                    {score >= 80
+                      ? "Excellent"
+                      : score >= 60
+                        ? "Good"
+                        : "Needs Improvement"}
+                  </strong>
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                marginTop: 20,
+                height: 10,
+                background: "#e5e7eb",
+                borderRadius: 6,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  width: `${score}%`,
+                  height: "100%",
+                  background:
+                    score >= 80
+                      ? "#22c55e"
+                      : score >= 60
+                        ? "#f59e0b"
+                        : "#ef4444",
+                  transition: "0.5s",
+                }}
+              />
+            </div>
+
+            <div
+              style={{
+                marginTop: 10,
+                fontSize: 13,
+                color: theme.subtext,
+              }}
+            >
+              {score >= 80 &&
+                "Excellent profile match. You have a strong chance for this role."}
+
+              {score >= 60 &&
+                score < 80 &&
+                "Good profile. Learning the missing skills can improve your chances."}
+
+              {score < 60 &&
+                "Several important skills are missing. Consider improving before applying."}
+            </div>
+          </div>
+        )} */}
+
+
+        {score != null && (
+  <div
+    style={{
+      background: theme.card,
+      border: `1px solid ${theme.border}`,
+      borderRadius: 14,
+      padding: "1.5rem",
+      width: "100%",
+      boxSizing: "border-box",
+      marginTop: 14,
+    }}
+  >
+    {/* HEADING */}
+
+    <div
+      style={{
+        fontSize: 12,
+        fontWeight: 700,
+        color: "#94a3b8",
+        textTransform: "uppercase",
+        letterSpacing: 1,
+        marginBottom: 24,
+        textAlign: "center",
+      }}
+    >
+      Resume Analysis
+    </div>
+
+    {/* SUMMARY */}
+
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "stretch",
+        gap: 18,
+        flexWrap: "wrap",
+      }}
+    >
+      {/* MATCH SCORE */}
+
+      <div
+        style={{
+          width: 180,
+          minHeight: 125,
+          background: theme.bg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: 12,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 16,
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 32,
+            fontWeight: 800,
+            color:
+              score >= 80
+                ? "#22c55e"
+                : score >= 60
+                  ? "#f59e0b"
+                  : "#ef4444",
+          }}
+        >
+          {score}%
+        </div>
+
+        <div
+          style={{
+            marginTop: 6,
+            fontSize: 13,
+            color: theme.subtext,
+            fontWeight: 600,
+          }}
+        >
+          Match Score
+        </div>
+      </div>
+
+      {/* MATCHED SKILLS */}
+
+      <div
+        style={{
+          width: 180,
+          minHeight: 125,
+          background: theme.bg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: 12,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 16,
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 32,
+            fontWeight: 800,
+            color: "#22c55e",
+          }}
+        >
+          {result.matched_skills?.length || 0}
+        </div>
+
+        <div
+          style={{
+            marginTop: 6,
+            fontSize: 13,
+            color: theme.subtext,
+            fontWeight: 600,
+          }}
+        >
+          Matched Skills
+        </div>
+      </div>
+
+      {/* MISSING SKILLS */}
+
+      <div
+        style={{
+          width: 180,
+          minHeight: 125,
+          background: theme.bg,
+          border: `1px solid ${theme.border}`,
+          borderRadius: 12,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 16,
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 32,
+            fontWeight: 800,
+            color: "#ef4444",
+          }}
+        >
+          {result.missing_skills?.length || 0}
+        </div>
+
+        <div
+          style={{
+            marginTop: 6,
+            fontSize: 13,
+            color: theme.subtext,
+            fontWeight: 600,
+          }}
+        >
+          Missing Skills
+        </div>
+      </div>
+    </div>
+
+    {/* OVERALL RATING */}
+
+    <div
+      style={{
+        marginTop: 22,
+        textAlign: "center",
+      }}
+    >
+      <span
+        style={{
+          display: "inline-block",
+          padding: "6px 16px",
+          borderRadius: 20,
+
+          background:
+            score >= 80
+              ? "#dcfce7"
+              : score >= 60
+                ? "#fef3c7"
+                : "#fee2e2",
+
+          color:
+            score >= 80
+              ? "#16a34a"
+              : score >= 60
+                ? "#d97706"
+                : "#dc2626",
+
+          fontSize: 13,
+          fontWeight: 700,
+        }}
+      >
+        {score >= 80
+          ? "Excellent Match"
+          : score >= 60
+            ? "Good Match"
+            : "Needs Improvement"}
+      </span>
+    </div>
+
+    {/* PROGRESS BAR */}
+
+    <div
+      style={{
+        maxWidth: 700,
+        margin: "24px auto 0",
+      }}
+    >
+      <div
+        style={{
+          height: 9,
+          background: theme.bg,
+          borderRadius: 20,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${score}%`,
+            height: "100%",
+
+            background:
+              score >= 80
+                ? "#22c55e"
+                : score >= 60
+                  ? "#f59e0b"
+                  : "#ef4444",
+
+            borderRadius: 20,
+            transition: "width 0.5s ease",
+          }}
+        />
+      </div>
+    </div>
+
+    {/* RECOMMENDATION */}
+
+    <div
+      style={{
+        maxWidth: 700,
+        margin: "14px auto 0",
+        textAlign: "center",
+        fontSize: 13,
+        lineHeight: 1.6,
+        color: theme.subtext,
+      }}
+    >
+      {score >= 80 &&
+        "Excellent profile match. Your resume aligns strongly with the job requirements."}
+
+      {score >= 60 &&
+        score < 80 &&
+        "Good profile match. Improving the missing skills can strengthen your application."}
+
+      {score < 60 &&
+        "Several important skills are missing. Consider improving the identified skill gaps before applying."}
+    </div>
+  </div>
+)}
 
       <style>{`@media(max-width:640px){ .app-detail-grid { grid-template-columns: 1fr !important; } }`}</style>
     </div>

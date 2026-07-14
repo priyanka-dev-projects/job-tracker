@@ -146,16 +146,19 @@ export default function DashboardPage() {
   ];
 
   if (isLoading) {
-    return (
-      <Loader text="Loading applications..." />
-    );
+    return <Loader text="Loading applications..." />;
   }
 
   return (
     <div>
       <div style={{ marginBottom: "1.75rem" }}>
         <h1
-          style={{ margin: 0, fontSize: 24, fontWeight: 800, color: theme.text }}
+          style={{
+            margin: 0,
+            fontSize: 24,
+            fontWeight: 800,
+            color: theme.text,
+          }}
         >
           Good to see you, {user?.name?.split(" ")[0]} 👋
         </h1>
@@ -274,7 +277,7 @@ export default function DashboardPage() {
             color: theme.text,
           }}
         >
-          Application pipeline
+          Application Tracker
         </h2>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {PIPELINE.map((s, i) => {
@@ -317,7 +320,7 @@ export default function DashboardPage() {
                       color: "#cbd5e1",
                     }}
                   >
-                    <ArrowRight size={14} />
+                    {/* <ArrowRight size={14} /> */}
                   </div>
                 )}
               </React.Fragment>
@@ -327,7 +330,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent apps */}
-      <div
+      {/* <div
         style={{
           background: theme.card,
           borderRadius: 14,
@@ -443,6 +446,164 @@ export default function DashboardPage() {
             </Link>
           ))
         )}
+      </div> */}
+      <div
+        style={{
+          background: theme.card,
+          border: `1px solid ${theme.border}`,
+          borderRadius: 12,
+          padding: 20,
+          boxShadow: theme.boxShadow,
+          overflowX: "auto",
+        }}
+      >
+        {/* <h3
+          style={{
+            marginBottom: 16,
+            color: theme.text,
+          }}
+        >
+          Recent Applications
+        </h3> */}
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 16,
+          }}
+        >
+          <h3
+            style={{
+              margin: 0,
+              color: theme.text,
+            }}
+          >
+            Recent Applications
+          </h3>
+
+          <Link
+            to="/kanban"
+            style={{
+              color: "#6366f1",
+              textDecoration: "none",
+              fontWeight: 600,
+            }}
+          >
+            View All →
+          </Link>
+        </div>
+
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+          }}
+        >
+          <thead>
+            <tr
+              style={{
+                borderBottom: `2px solid ${theme.border}`,
+                color: theme.subtext,
+                textAlign: "left",
+              }}
+            >
+              {/* <th style={{ padding: "12px" }}>Company</th>
+              <th style={{ padding: "12px" }}>Role</th>
+              <th style={{ padding: "12px" }}>Status</th>
+              <th style={{ padding: "12px" }}>Applied Date</th> */}
+
+              <th style={{ padding: "12px", width: "35%" }}>Company</th>
+              <th style={{ padding: "12px", width: "35%" }}>Role</th>
+              <th style={{ padding: "12px", width: "15%" }}>Status</th>
+              <th style={{ padding: "12px", width: "15%" }}>Applied Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {apps?.slice(0, 5).map((app) => (
+              // <tr
+              //   // key={app.id}
+              //   key={app.id || app._id}
+              //   style={{
+              //     borderBottom: `1px solid ${theme.border}`,
+              //   }}
+              // >
+              <tr
+                key={app.id || app._id}
+                onClick={() =>
+                  (window.location.href = `/apps/${app.id || app._id}`)
+                }
+                style={{
+                  borderBottom: `1px solid ${theme.border}`,
+                  cursor: "pointer",
+                }}
+              >
+                {/* <td style={{ padding: "12px", color: theme.text }}>
+                  {app.company}
+                </td> */}
+
+                <td
+                  style={{
+                    padding: "12px",
+                    color: theme.text,
+                    width: "35%",
+                    whiteSpace: "normal",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {app.company}
+                </td>
+
+                {/* <td style={{ padding: "12px", color: theme.text }}>
+                  {app.role}
+                </td> */}
+
+                <td
+                  style={{
+                    padding: "12px",
+                    color: theme.text,
+                    width: "35%",
+                  }}
+                >
+                  {app.role}
+                </td>
+
+                {/* <td style={{ padding: "12px" }}>
+                  <span
+                    style={{
+                      background:
+                        app.status === "Applied"
+                          ? "#3b82f6"
+                          : app.status === "Interview"
+                            ? "#f59e0b"
+                            : app.status === "Offer"
+                              ? "#10b981"
+                              : "#ef4444",
+                      color: "#fff",
+                      padding: "4px 10px",
+                      borderRadius: 20,
+                      fontSize: 12,
+                    }}
+                  >
+                    {app.status}
+                  </span>
+                </td> */}
+                <td style={{ padding: "12px" }}>
+                  <StatusBadge status={app.status?.toLowerCase()} />
+                </td>
+
+                <td style={{ padding: "12px", color: theme.subtext }}>
+                  {/* {new Date(app.created_at).toLocaleDateString()} */}
+                  {app.created_at
+                    ? new Date(app.created_at).toLocaleDateString()
+                    : "-"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

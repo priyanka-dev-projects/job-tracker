@@ -2,8 +2,19 @@ import os
 import httpx
 from datetime import datetime, timedelta
 from typing import Optional
+from fastapi.responses import JSONResponse
 
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Request
+# from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Request
+from fastapi import (
+    FastAPI,
+    Depends,
+    HTTPException,
+    status,
+    UploadFile,
+    File,
+    Request,
+    Response,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
@@ -143,15 +154,31 @@ async def proxy(method: str, url: str, current_user, **kwargs):
 
 #     return {"message": "Deleted"}
 
+# @app.delete("/resumes/{resume_id}")
+# async def delete_resume(resume_id: str, current_user=Depends(get_current_user)):
+#     data, _ = await proxy(
+#         "DELETE",
+#         f"{RESUME_PARSER_URL}/resumes/{resume_id}",
+#         current_user
+#     )
+#     return data
+
+
 @app.delete("/resumes/{resume_id}")
-async def delete_resume(resume_id: str, current_user=Depends(get_current_user)):
-    data, _ = await proxy(
+async def delete_resume(
+    resume_id: str,
+    current_user=Depends(get_current_user),
+):
+    data, status_code = await proxy(
         "DELETE",
         f"{RESUME_PARSER_URL}/resumes/{resume_id}",
-        current_user
+        current_user,
     )
-    return data
 
+    return JSONResponse(
+        content=data,
+        status_code=status_code,
+    )
 
 @app.post("/resumes/upload")
 async def upload_resume(file: UploadFile = File(...), current_user=Depends(get_current_user)):
@@ -167,6 +194,105 @@ async def list_resumes(current_user=Depends(get_current_user)):
     # data, _ = await proxy("GET", f"{RESUME_PARSER_URL}/resume/list", current_user)
     data, _ = await proxy("GET", f"{RESUME_PARSER_URL}/resumes", current_user)
     return data
+
+@app.get("/resumes/{resume_id}/preview")
+async def preview_resume(
+    resume_id: str,
+    current_user=Depends(get_current_user),
+):
+    user_id = str(current_user["_id"])
+
+    async with httpx.AsyncClient(timeout=60) as client:
+
+        resp = await client.get(
+            f"{RESUME_PARSER_URL}/resumes/{resume_id}/preview",
+            headers={
+                "X-User-ID": user_id,
+            },
+        )
+
+    if resp.status_code != 200:
+        try:
+            error_data = resp.json()
+
+            detail = error_data.get(
+                "detail",
+                "Preview failed",
+            )
+
+        except Exception:
+            detail = "Preview failed"
+
+        raise HTTPException(
+            status_code=resp.status_code,
+            detail=detail,
+        )
+
+    return Response(
+        content=resp.content,
+        status_code=resp.status_code,
+        media_type=resp.headers.get(
+            "content-type",
+            "application/octet-stream",
+        ),
+        headers={
+            "Content-Disposition":
+                resp.headers.get(
+                    "content-disposition",
+                    "inline",
+                ),
+        },
+    )
+
+
+@app.get("/resumes/{resume_id}/download")
+async def download_resume(
+    resume_id: str,
+    current_user=Depends(get_current_user),
+):
+    user_id = str(current_user["_id"])
+
+    async with httpx.AsyncClient(timeout=60) as client:
+
+        resp = await client.get(
+            f"{RESUME_PARSER_URL}/resumes/{resume_id}/download",
+            headers={
+                "X-User-ID": user_id,
+            },
+        )
+
+    if resp.status_code != 200:
+        try:
+            error_data = resp.json()
+
+            detail = error_data.get(
+                "detail",
+                "Download failed",
+            )
+
+        except Exception:
+            detail = "Download failed"
+
+        raise HTTPException(
+            status_code=resp.status_code,
+            detail=detail,
+        )
+
+    return Response(
+        content=resp.content,
+        status_code=resp.status_code,
+        media_type=resp.headers.get(
+            "content-type",
+            "application/octet-stream",
+        ),
+        headers={
+            "Content-Disposition":
+                resp.headers.get(
+                    "content-disposition",
+                    "attachment",
+                ),
+        },
+    )
 
 @app.get("/resumes/{resume_id}")
 async def get_resume(resume_id: str, current_user=Depends(get_current_user)):
