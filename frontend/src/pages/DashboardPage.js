@@ -513,33 +513,41 @@ export default function DashboardPage() {
               marginBottom: 16,
             }}
           >
-            <h3
+            <div
               style={{
-                margin: 0,
-                color: theme.text,
-              }}
-            >
-              Recent Applications
-            </h3>
-
-            <Link
-              to="/applications"
-              style={{
-                marginLeft: "auto",
                 display: "flex",
+                justifyContent: "space-between",
                 alignItems: "center",
-                gap: 6,
-                background: "#6366f1",
-                color: "#fff",
-                padding: "10px 16px",
-                borderRadius: 8,
-                textDecoration: "none",
-                fontWeight: 600,
               }}
             >
-              <Plus size={16} />
-              Add Application
-            </Link>
+              <h3
+                style={{
+                  margin: 0,
+                  color: theme.text,
+                }}
+              >
+                Recent Applications
+              </h3>
+
+              <Link
+                to="/applications"
+                style={{
+                  marginLeft: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "#6366f1",
+                  color: "#fff",
+                  padding: "10px 16px",
+                  borderRadius: 8,
+                  textDecoration: "none",
+                  fontWeight: 600,
+                }}
+              >
+                <Plus size={16} />
+                Add Application
+              </Link>
+            </div>
 
             {apps?.length > 0 && (
               <Link
