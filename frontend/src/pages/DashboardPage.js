@@ -522,39 +522,33 @@ export default function DashboardPage() {
               Recent Applications
             </h3>
 
-            <div
+            <Link
+              to="/applications"
               style={{
-                marginLeft: "auto",
+                background: "#6366f1",
+                color: "#fff",
+                padding: "8px 14px",
+                borderRadius: 8,
+                textDecoration: "none",
+                fontWeight: 600,
               }}
             >
+              <Plus size={16} />
+              Add Applicationnnnnnnnnn
+            </Link>
+
+            {apps?.length > 0 && (
               <Link
-                to="/applications"
+                to="/kanban"
                 style={{
-                  background: "#6366f1",
-                  color: "#fff",
-                  padding: "8px 14px",
-                  borderRadius: 8,
+                  color: "#6366f1",
                   textDecoration: "none",
                   fontWeight: 600,
                 }}
               >
-                <Plus size={16} />
-                Add Application
+                View All →
               </Link>
-
-              {apps?.length > 0 && (
-                <Link
-                  to="/kanban"
-                  style={{
-                    color: "#6366f1",
-                    textDecoration: "none",
-                    fontWeight: 600,
-                  }}
-                >
-                  View All →
-                </Link>
-              )}
-            </div>
+            )}
           </div>
         </div>
 
