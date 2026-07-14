@@ -510,7 +510,7 @@ export default function DashboardPage() {
             style={{
               display: "flex",
               alignItems: "center",
-              marginBottom: 16,
+              marginBottom: 10,
               width: "100%",
             }}
           >
