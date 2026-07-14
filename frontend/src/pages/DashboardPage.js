@@ -538,7 +538,7 @@ export default function DashboardPage() {
                 fontWeight: 600,
               }}
             >
-              <Plus size={16} />
+              {/* <Plus size={16} /> */}
               Add Application
             </Link>
 

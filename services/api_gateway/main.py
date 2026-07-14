@@ -27,11 +27,12 @@ SECRET_KEY       = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production"
 ALGORITHM        = "HS256"
 TOKEN_EXPIRE_MIN = int(os.getenv("TOKEN_EXPIRE_MINUTES", "1440"))
 
-MONGO_URL          = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+# MONGO_URL          = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+MONGO_URL          = os.getenv("MONGO_URL", "mongodb+srv://jat_db_user:Pk%407975463006@cluster0.6hy7bvy.mongodb.net/?appName=Cluster0")
 # RESUME_PARSER_URL  = os.getenv("RESUME_PARSER_URL", "http://localhost:8001")
-RESUME_PARSER_URL  = os.getenv("RESUME_PARSER_URL", "https://resume-parser-73ys.onrender.com")
+RESUME_PARSER_URL  = os.getenv("RESUME_PARSER_URL", "https://resume-praser-dnlp.onrender.com")
 # JOB_MATCHER_URL    = os.getenv("JOB_MATCHER_URL",   "http://localhost:8002")
-JOB_MATCHER_URL    = os.getenv("JOB_MATCHER_URL",   "https://job-matcher-bync.onrender.com")
+JOB_MATCHER_URL    = os.getenv("JOB_MATCHER_URL",   "https://jat-job-matcher.onrender.com")
 # APP_MANAGER_URL    = os.getenv("APP_MANAGER_URL",    "http://localhost:8003")
 APP_MANAGER_URL    = os.getenv("APP_MANAGER_URL",    "https://app-manager-a3le.onrender.com")
 
