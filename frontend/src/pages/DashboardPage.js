@@ -10,6 +10,7 @@ import {
   XCircle,
   Clock,
   ArrowRight,
+  Plus,
 } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import Loader from "../components/Loader";
@@ -160,10 +161,10 @@ export default function DashboardPage() {
             color: theme.text,
           }}
         >
-          Good to see you, {user?.name?.split(" ")[0]} 👋
+          Welcome back, {user?.name?.split(" ")[0]} 👋
         </h1>
         <p style={{ margin: "4px 0 0", color: theme.subtext, fontSize: 14 }}>
-          Here's your job search snapshot
+          Track your job applications and progress from one place.
         </p>
       </div>
 
@@ -257,6 +258,26 @@ export default function DashboardPage() {
           </ResponsiveContainer>
         </div>
       </div> */}
+
+      <div
+        style={{
+          marginBottom: 18,
+          fontSize: 15,
+          color: theme.subtext,
+        }}
+      >
+        Total Applications
+        <span
+          style={{
+            marginLeft: 10,
+            fontWeight: 700,
+            color: theme.text,
+            fontSize: 22,
+          }}
+        >
+          {stats?.total || 0}
+        </span>
+      </div>
 
       {/* Pipeline funnel */}
       <div
@@ -474,16 +495,7 @@ export default function DashboardPage() {
             marginBottom: 16,
           }}
         >
-          <h3
-            style={{
-              margin: 0,
-              color: theme.text,
-            }}
-          >
-            Recent Applications
-          </h3>
-
-          <Link
+          {/* <Link
             to="/kanban"
             style={{
               color: "#6366f1",
@@ -492,85 +504,201 @@ export default function DashboardPage() {
             }}
           >
             View All →
-          </Link>
-        </div>
+          </Link> */}
 
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-          }}
-        >
-          <thead>
-            <tr
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 16,
+            }}
+          >
+            <h3
               style={{
-                borderBottom: `2px solid ${theme.border}`,
-                color: theme.subtext,
-                textAlign: "left",
+                margin: 0,
+                color: theme.text,
               }}
             >
-              {/* <th style={{ padding: "12px" }}>Company</th>
+              Recent Applications
+            </h3>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <Link
+                to="/applications"
+                style={{
+                  background: "#6366f1",
+                  color: "#fff",
+                  padding: "8px 14px",
+                  borderRadius: 8,
+                  textDecoration: "none",
+                  fontWeight: 600,
+                }}
+              >
+                <Plus size={16} />
+                Add Application
+              </Link>
+
+              {apps?.length > 0 && (
+                <Link
+                  to="/kanban"
+                  style={{
+                    color: "#6366f1",
+                    textDecoration: "none",
+                    fontWeight: 600,
+                  }}
+                >
+                  View All →
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {apps?.length === 0 ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "70px 20px",
+            }}
+          >
+            <Briefcase size={60} color="#cbd5e1" />
+
+            <h3
+              style={{
+                color: theme.text,
+                marginTop: 20,
+              }}
+            >
+              No applications yet
+            </h3>
+
+            <p
+              style={{
+                color: theme.subtext,
+                marginBottom: 25,
+              }}
+            >
+              Start tracking your job applications.
+            </p>
+
+            <Link
+              to="/applications"
+              style={{
+                background: "#6366f1",
+                color: "#fff",
+                padding: "12px 20px",
+                borderRadius: 8,
+                textDecoration: "none",
+                fontWeight: 600,
+              }}
+            >
+              + Add Your First Application
+            </Link>
+          </div>
+        ) : (
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
+            <thead>
+              <tr
+                style={{
+                  borderBottom: `2px solid ${theme.border}`,
+                  color: theme.subtext,
+                  textAlign: "left",
+                }}
+              >
+                {/* <th style={{ padding: "12px" }}>Company</th>
               <th style={{ padding: "12px" }}>Role</th>
               <th style={{ padding: "12px" }}>Status</th>
               <th style={{ padding: "12px" }}>Applied Date</th> */}
 
-              <th style={{ padding: "12px", width: "35%" }}>Company</th>
-              <th style={{ padding: "12px", width: "35%" }}>Role</th>
-              <th style={{ padding: "12px", width: "15%" }}>Status</th>
-              <th style={{ padding: "12px", width: "15%" }}>Applied Date</th>
-            </tr>
-          </thead>
+                <th style={{ padding: "12px", width: "35%" }}>Company</th>
+                <th style={{ padding: "12px", width: "35%" }}>Role</th>
+                <th style={{ padding: "12px", width: "15%" }}>Status</th>
+                <th style={{ padding: "12px", width: "15%" }}>Applied Date</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {apps?.slice(0, 5).map((app) => (
-              // <tr
-              //   // key={app.id}
-              //   key={app.id || app._id}
-              //   style={{
-              //     borderBottom: `1px solid ${theme.border}`,
-              //   }}
-              // >
-              <tr
-                key={app.id || app._id}
-                onClick={() =>
-                  (window.location.href = `/apps/${app.id || app._id}`)
-                }
-                style={{
-                  borderBottom: `1px solid ${theme.border}`,
-                  cursor: "pointer",
-                }}
-              >
-                {/* <td style={{ padding: "12px", color: theme.text }}>
+            <tbody>
+              {(apps || [])
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .slice(0, 5)
+                .map((app) => (
+                  // <tr
+                  //   // key={app.id}
+                  //   key={app.id || app._id}
+                  //   style={{
+                  //     borderBottom: `1px solid ${theme.border}`,
+                  //   }}
+                  // >
+                  // <tr
+                  //   key={app.id || app._id}
+                  //   onClick={() =>
+                  //     (window.location.href = `/apps/${app.id || app._id}`)
+                  //   }
+                  //   style={{
+                  //     borderBottom: `1px solid ${theme.border}`,
+                  //     cursor: "pointer",
+                  //   }}
+                  // >
+
+                  <tr
+                    key={app.id || app._id}
+                    onClick={() =>
+                      (window.location.href = `/apps/${app.id || app._id}`)
+                    }
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = theme.bg)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background = "transparent")
+                    }
+                    style={{
+                      borderBottom: `1px solid ${theme.border}`,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {/* <td style={{ padding: "12px", color: theme.text }}>
                   {app.company}
                 </td> */}
 
-                <td
-                  style={{
-                    padding: "12px",
-                    color: theme.text,
-                    width: "35%",
-                    whiteSpace: "normal",
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {app.company}
-                </td>
+                    <td
+                      style={{
+                        padding: "12px",
+                        color: theme.text,
+                        width: "35%",
+                        whiteSpace: "normal",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {app.company}
+                    </td>
 
-                {/* <td style={{ padding: "12px", color: theme.text }}>
+                    {/* <td style={{ padding: "12px", color: theme.text }}>
                   {app.role}
                 </td> */}
 
-                <td
-                  style={{
-                    padding: "12px",
-                    color: theme.text,
-                    width: "35%",
-                  }}
-                >
-                  {app.role}
-                </td>
+                    <td
+                      style={{
+                        padding: "12px",
+                        color: theme.text,
+                        width: "35%",
+                      }}
+                    >
+                      {app.role}
+                    </td>
 
-                {/* <td style={{ padding: "12px" }}>
+                    {/* <td style={{ padding: "12px" }}>
                   <span
                     style={{
                       background:
@@ -590,20 +718,21 @@ export default function DashboardPage() {
                     {app.status}
                   </span>
                 </td> */}
-                <td style={{ padding: "12px" }}>
-                  <StatusBadge status={app.status?.toLowerCase()} />
-                </td>
+                    <td style={{ padding: "12px" }}>
+                      <StatusBadge status={app.status?.toLowerCase()} />
+                    </td>
 
-                <td style={{ padding: "12px", color: theme.subtext }}>
-                  {/* {new Date(app.created_at).toLocaleDateString()} */}
-                  {app.created_at
-                    ? new Date(app.created_at).toLocaleDateString()
-                    : "-"}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <td style={{ padding: "12px", color: theme.subtext }}>
+                      {/* {new Date(app.created_at).toLocaleDateString()} */}
+                      {app.created_at
+                        ? new Date(app.created_at).toLocaleDateString()
+                        : "-"}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
