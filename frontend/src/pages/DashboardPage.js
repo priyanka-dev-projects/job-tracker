@@ -511,48 +511,42 @@ export default function DashboardPage() {
               display: "flex",
               alignItems: "center",
               marginBottom: 16,
+              width: "100%",
             }}
           >
-            <div
+            <h3
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                margin: 0,
+                color: theme.text,
               }}
             >
-              <h3
-                style={{
-                  margin: 0,
-                  color: theme.text,
-                }}
-              >
-                Recent Applications
-              </h3>
+              Recent Applications
+            </h3>
 
-              <Link
-                to="/applications"
-                style={{
-                  marginLeft: "auto",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  background: "#6366f1",
-                  color: "#fff",
-                  padding: "10px 16px",
-                  borderRadius: 8,
-                  textDecoration: "none",
-                  fontWeight: 600,
-                }}
-              >
-                <Plus size={16} />
-                Add Application
-              </Link>
-            </div>
+            <Link
+              to="/applications"
+              style={{
+                marginLeft: "auto",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                background: "#6366f1",
+                color: "#fff",
+                padding: "10px 16px",
+                borderRadius: 8,
+                textDecoration: "none",
+                fontWeight: 600,
+              }}
+            >
+              <Plus size={16} />
+              Add Application
+            </Link>
 
             {apps?.length > 0 && (
               <Link
                 to="/kanban"
                 style={{
+                  marginLeft: 12,
                   color: "#6366f1",
                   textDecoration: "none",
                   fontWeight: 600,
