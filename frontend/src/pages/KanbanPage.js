@@ -111,7 +111,7 @@ function Modal({ onClose, theme }) {
               margin: 0,
               fontSize: 18,
               fontWeight: 800,
-              color:theme.text,
+              color: theme.text,
             }}
           >
             New application
@@ -130,10 +130,17 @@ function Modal({ onClose, theme }) {
               justifyContent: "center",
             }}
           >
-            <X size={16} color= "#64748b" />
+            <X size={16} color="#64748b" />
           </button>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, color:theme.text }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+            color: theme.text,
+          }}
+        >
           {[
             {
               key: "company",
@@ -285,7 +292,7 @@ function AppCard({ app, index, theme }) {
                 style={{
                   fontWeight: 700,
                   fontSize: 15,
-                  color:theme.text,
+                  color: theme.text,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
@@ -458,7 +465,7 @@ export default function KanbanPage() {
               margin: 0,
               fontSize: 22,
               fontWeight: 800,
-              color:theme.text,
+              color: theme.text,
             }}
           >
             Applications
@@ -661,85 +668,126 @@ export default function KanbanPage() {
         //   </div>
         // </DragDropContext>
         <div
-  style={{
-    background: theme.card,
-    border: `1px solid ${theme.border}`,
-    borderRadius: 12,
-    overflowX: "auto",
-    boxShadow: theme.boxShadow,
-  }}
->
-  <table
-    style={{
-      width: "100%",
-      borderCollapse: "collapse",
-      minWidth: "900px",
-    }}
-  >
-    <thead>
-      <tr
-        style={{
-          background: theme.bg,
-          borderBottom: `2px solid ${theme.border}`,
-        }}
-      >
-        <th style={{ padding: "14px", textAlign: "left", width: "25%", color: theme.subtext }}>
-          Company
-        </th>
+          style={{
+            background: theme.card,
+            border: `1px solid ${theme.border}`,
+            borderRadius: 12,
+            overflowX: "auto",
+            boxShadow: theme.boxShadow,
+          }}
+        >
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              minWidth: "900px",
+            }}
+          >
+            <thead>
+              <tr
+                style={{
+                  background: theme.bg,
+                  borderBottom: `2px solid ${theme.border}`,
+                }}
+              >
+                <th
+                  style={{
+                    padding: "14px",
+                    textAlign: "left",
+                    width: "25%",
+                    color: theme.subtext,
+                  }}
+                >
+                  Company
+                </th>
 
-        <th style={{ padding: "14px", textAlign: "left", width: "25%", color: theme.subtext }}>
-          Role
-        </th>
+                <th
+                  style={{
+                    padding: "14px",
+                    textAlign: "left",
+                    width: "25%",
+                    color: theme.subtext,
+                  }}
+                >
+                  Role
+                </th>
 
-        <th style={{ padding: "14px", textAlign: "left", width: "15%", color: theme.subtext }}>
-          Status
-        </th>
+                <th
+                  style={{
+                    padding: "14px",
+                    textAlign: "left",
+                    width: "15%",
+                    color: theme.subtext,
+                  }}
+                >
+                  Status
+                </th>
 
-        <th style={{ padding: "14px", textAlign: "left", width: "10%", color: theme.subtext }}>
-          Match
-        </th>
+                <th
+                  style={{
+                    padding: "14px",
+                    textAlign: "left",
+                    width: "10%",
+                    color: theme.subtext,
+                  }}
+                >
+                  Match
+                </th>
 
-        {/* <th style={{ padding: "14px", textAlign: "left", width: "10%", color: theme.subtext }}>
+                {/* <th style={{ padding: "14px", textAlign: "left", width: "10%", color: theme.subtext }}>
           Gaps
         </th> */}
 
-        <th style={{ padding: "14px", textAlign: "left", width: "15%", color: theme.subtext }}>
-          Actions
-        </th>
-      </tr>
-    </thead>
+                <th
+                  style={{
+                    padding: "14px",
+                    textAlign: "left",
+                    width: "15%",
+                    color: theme.subtext,
+                  }}
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
 
-    <tbody>
-      {apps.length === 0 ? (
-        <tr>
-          <td
-            colSpan={6}
-            style={{
-              padding: 30,
-              textAlign: "center",
-              color: theme.subtext,
-            }}
-          >
-            No applications found.
-          </td>
-        </tr>
-      ) : (
-        apps.map((app) => (
-          <tr
-            key={app.id}
-            style={{
-              borderBottom: `1px solid ${theme.border}`,
-            }}
-          >
-            <td style={{ padding: 14, color: theme.text, fontWeight: 600 }}>
-              {app.company}
-            </td>
+            <tbody>
+              {apps.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    style={{
+                      padding: 30,
+                      textAlign: "center",
+                      color: theme.subtext,
+                    }}
+                  >
+                    No applications found.
+                  </td>
+                </tr>
+              ) : (
+                apps.map((app) => (
+                  <tr
+                    key={app.id}
+                    style={{
+                      borderBottom: `1px solid ${theme.border}`,
+                    }}
+                  >
+                    <td
+                      style={{
+                        padding: 14,
+                        color: theme.text,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {app.company}
+                    </td>
 
-            <td style={{ padding: 14, color: theme.text }}>
-              {app.role}
-            </td>
+                    <td style={{ padding: 14, color: theme.text }}>
+                      {app.role}
+                    </td>
 
-            {/* <td style={{ padding: 14 }}>
+                    {/* <td style={{ padding: 14 }}>
               <span
                 style={{
                   background:
@@ -764,58 +812,59 @@ export default function KanbanPage() {
                 {app.status}
               </span>
             </td> */}
-            <td style={{ padding: 14 }}>
-  {(() => {
-    const style =
-      STATUS_STYLE[app.status?.toLowerCase()] || STATUS_STYLE.applied;
+                    <td style={{ padding: 14 }}>
+                      {(() => {
+                        const style =
+                          STATUS_STYLE[app.status?.toLowerCase()] ||
+                          STATUS_STYLE.applied;
 
-    return (
-      <span
-        style={{
-          background: style.bg,
-          color: style.text,
-          padding: "4px 10px",
-          borderRadius: 20,
-          fontSize: 12,
-          fontWeight: 600,
-          textTransform: "capitalize",
-        }}
-      >
-        {app.status}
-      </span>
-    );
-  })()}
-</td>
+                        return (
+                          <span
+                            style={{
+                              background: style.bg,
+                              color: style.text,
+                              padding: "4px 10px",
+                              borderRadius: 20,
+                              fontSize: 12,
+                              fontWeight: 600,
+                              textTransform: "capitalize",
+                            }}
+                          >
+                            {app.status}
+                          </span>
+                        );
+                      })()}
+                    </td>
 
-            <td style={{ padding: 14, color: theme.text }}>
-              {app.match_score ?? "-"}%
-            </td>
+                    <td style={{ padding: 14, color: theme.text }}>
+                      {app.match_score ?? "-"}%
+                    </td>
 
-            {/* <td style={{ padding: 14, color: theme.text }}>
+                    {/* <td style={{ padding: 14, color: theme.text }}>
               {app.skill_gaps?.length ?? 0}
             </td> */}
 
-            <td style={{ padding: 14 }}>
-              <Link
-                to={`/apps/${app.id}`}
-                style={{
-                  color: "#6366f1",
-                  textDecoration: "none",
-                  fontWeight: 600,
-                }}
-              >
-                View
-              </Link>
-            </td>
-          </tr>
-        ))
-      )}
-    </tbody>
-  </table>
-</div>
+                    <td style={{ padding: 14 }}>
+                      <Link
+                        to={`/apps/${app.id}`}
+                        style={{
+                          color: "#6366f1",
+                          textDecoration: "none",
+                          fontWeight: 600,
+                        }}
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
 
-      {showModal && <Modal onClose={() => setShowModal(false)} theme={theme}/>}
+      {showModal && <Modal onClose={() => setShowModal(false)} theme={theme} />}
     </div>
   );
 }

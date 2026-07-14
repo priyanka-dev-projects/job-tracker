@@ -524,7 +524,7 @@ export default function DashboardPage() {
             </h3>
 
             <Link
-              to="/applications"
+              to="/kanban"
               style={{
                 marginLeft: "auto",
                 display: "flex",
@@ -594,9 +594,11 @@ export default function DashboardPage() {
                 borderRadius: 8,
                 textDecoration: "none",
                 fontWeight: 600,
+                flexWrap: "wrap"
+
               }}
             >
-              + Add Your First Application
+              Add Your First Application
             </Link>
           </div>
         ) : (
