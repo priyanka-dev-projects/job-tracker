@@ -88,7 +88,8 @@
 
 // export default client;
 
-const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
+// const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const API_BASE = process.env.REACT_APP_API_URL || "https://jat-frontend-1m06.onrender.com";
 
 // ============================================================
 // HELPERS
