@@ -1413,7 +1413,7 @@ import httpx
 
 MONGO_URL = os.getenv(
     "MONGO_URL",
-    "mongodb://localhost:27017",
+    "mongodb+srv://jat_db_user:Pk%407975463006@cluster0.6hy7bvy.mongodb.net/?appName=Cluster0",
 )
 
 # MINIO_ENDPOINT = os.getenv(
