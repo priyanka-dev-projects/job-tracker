@@ -509,7 +509,6 @@ export default function DashboardPage() {
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
               alignItems: "center",
               marginBottom: 16,
             }}
@@ -525,10 +524,7 @@ export default function DashboardPage() {
 
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 12,
+                marginLeft: "auto",
               }}
             >
               <Link
@@ -566,7 +562,7 @@ export default function DashboardPage() {
           <div
             style={{
               textAlign: "center",
-              padding: "70px 20px",
+              padding: "50px 20px",
             }}
           >
             <Briefcase size={60} color="#cbd5e1" />
