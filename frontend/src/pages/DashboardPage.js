@@ -259,7 +259,7 @@ export default function DashboardPage() {
         </div>
       </div> */}
 
-      <div
+      {/* <div
         style={{
           marginBottom: 18,
           fontSize: 15,
@@ -277,7 +277,7 @@ export default function DashboardPage() {
         >
           {stats?.total || 0}
         </span>
-      </div>
+      </div> */}
 
       {/* Pipeline funnel */}
       <div
@@ -526,6 +526,7 @@ export default function DashboardPage() {
             <div
               style={{
                 display: "flex",
+                justifyContent: "space-between",
                 alignItems: "center",
                 gap: 12,
               }}
