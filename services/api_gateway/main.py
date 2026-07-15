@@ -251,7 +251,7 @@ async def upload_resume(
         data = resp.json()
     except Exception:
         data = {
-            "detail": resp.json()
+            "detail": resp.text
         }
 
     return JSONResponse(
