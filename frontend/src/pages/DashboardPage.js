@@ -538,6 +538,7 @@ export default function DashboardPage() {
                 borderRadius: 8,
                 textDecoration: "none",
                 fontWeight: 600,
+                textAlign: "center",
               }}
             >
               {/* <Plus size={16} /> */}
