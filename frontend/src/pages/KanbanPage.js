@@ -389,6 +389,8 @@ export default function KanbanPage() {
     enabled: !!user?.id,
   });
 
+  const apps = Array.isArray(data) ? data : [];
+
   const statusMut = useMutation({
     mutationFn: ({ id, status }) => appAPI.updateStatus(id, status),
     onSuccess: () => {
@@ -476,7 +478,7 @@ export default function KanbanPage() {
             Applications
           </h1>
           <p style={{ margin: "3px 0 0", color: theme.subtext, fontSize: 13 }}>
-            {apps.length} total · drag cards to update stage
+            {applications.length} total · drag cards to update stage
           </p>
         </div>
         <button
@@ -757,7 +759,7 @@ export default function KanbanPage() {
             </thead>
 
             <tbody>
-              {apps.length === 0 ? (
+              {applications.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
@@ -771,7 +773,7 @@ export default function KanbanPage() {
                   </td>
                 </tr>
               ) : (
-                apps.map((app) => (
+                applications.map((app) => (
                   <tr
                     key={app.id}
                     style={{
