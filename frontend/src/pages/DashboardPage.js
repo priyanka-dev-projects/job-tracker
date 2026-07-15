@@ -544,7 +544,7 @@ export default function DashboardPage() {
               Add Application
             </Link>
 
-            {apps?.length > 0 && (
+            {applications?.length > 0 && (
               <Link
                 to="/kanban"
                 style={{
@@ -560,7 +560,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {apps?.length === 0 ? (
+        {applications?.length === 0 ? (
           <div
             style={{
               textAlign: "center",
@@ -631,7 +631,7 @@ export default function DashboardPage() {
             </thead>
 
             <tbody>
-              {(apps || [])
+              {(applications || [])
                 .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
                 .slice(0, 5)
                 .map((app) => (
