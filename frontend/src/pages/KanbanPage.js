@@ -56,20 +56,12 @@ function Modal({ onClose, theme }) {
   const qc = useQueryClient();
   const mutation = useMutation({
     mutationFn: () => appAPI.create(form),
-    // onSuccess: () => {
-    //   qc.invalidateQueries(["apps"]);
-    //   qc.invalidateQueries(["stats"]);
-    //   toast.success("Application added!");
-    //   onClose();
-    // },
-    onSuccess: async () => {
-  await qc.refetchQueries({
-    queryKey: ["apps"],
-  });
-
-  toast.success("Application added!");
-  onClose();
-},
+    onSuccess: () => {
+      qc.invalidateQueries(["apps"]);
+      qc.invalidateQueries(["stats"]);
+      toast.success("Application added!");
+      onClose();
+    },
     onError: () => toast.error("Failed to create"),
   });
 
