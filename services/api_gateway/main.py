@@ -3,6 +3,7 @@ import httpx
 from datetime import datetime, timedelta
 from typing import Optional
 from fastapi.responses import JSONResponse
+from fastapi import Query
 
 # from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Request
 from fastapi import (
@@ -137,12 +138,35 @@ async def me(current_user=Depends(get_current_user)):
     return {"id": str(current_user["_id"]), "email": current_user["email"], "name": current_user["name"]}
 
 
+# async def proxy(method: str, url: str, current_user, **kwargs):
+#     headers = kwargs.pop("headers", {})
+#     headers["X-User-ID"] = str(current_user["_id"])
+#     async with httpx.AsyncClient(timeout=30) as client:
+#         resp = await client.request(method, url, headers=headers, **kwargs)
+#     return resp.json(), resp.status_code
+
+
 async def proxy(method: str, url: str, current_user, **kwargs):
     headers = kwargs.pop("headers", {})
     headers["X-User-ID"] = str(current_user["_id"])
+
     async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.request(method, url, headers=headers, **kwargs)
-    return resp.json(), resp.status_code
+        resp = await client.request(
+            method,
+            url,
+            headers=headers,
+            **kwargs,
+        )
+
+    try:
+        data = resp.json()
+    except Exception:
+        data = {
+            "detail": resp.text
+        }
+
+    return data, resp.status_code
+
 
 # @app.delete("/resumes/{resume_id}")
 # async def delete_resume(resume_id: str, request: Request):
@@ -181,14 +205,55 @@ async def delete_resume(
         status_code=status_code,
     )
 
+# @app.post("/resumes/upload")
+# async def upload_resume(file: UploadFile = File(...), current_user=Depends(get_current_user)):
+#     user_id = str(current_user["_id"])
+#     async with httpx.AsyncClient(timeout=60) as client:
+#         files = {"file": (file.filename, await file.read(), file.content_type)}
+#         # resp  = await client.post(f"{RESUME_PARSER_URL}/resume/upload", files=files, headers={"X-User-ID": user_id})
+#         resp  = await client.post(f"{RESUME_PARSER_URL}/resumes/upload", files=files, headers={"X-User-ID": user_id})
+#     return resp.json()
+
+
 @app.post("/resumes/upload")
-async def upload_resume(file: UploadFile = File(...), current_user=Depends(get_current_user)):
+async def upload_resume(
+    file: UploadFile = File(...),
+    current_user=Depends(get_current_user),
+):
     user_id = str(current_user["_id"])
+
     async with httpx.AsyncClient(timeout=60) as client:
-        files = {"file": (file.filename, await file.read(), file.content_type)}
-        # resp  = await client.post(f"{RESUME_PARSER_URL}/resume/upload", files=files, headers={"X-User-ID": user_id})
-        resp  = await client.post(f"{RESUME_PARSER_URL}/resumes/upload", files=files, headers={"X-User-ID": user_id})
-    return resp.json()
+        files = {
+            "file": (
+                file.filename,
+                await file.read(),
+                file.content_type,
+            )
+        }
+
+        resp = await client.post(
+            f"{RESUME_PARSER_URL}/resumes/upload",
+            files=files,
+            headers={
+                "X-User-ID": user_id,
+            },
+        )
+
+    print("STATUS:", resp.status_code)
+    print("CONTENT-TYPE:", resp.headers.get("content-type"))
+    print("BODY:", resp.text)
+
+    try:
+        data = resp.json()
+    except Exception:
+        data = {
+            "detail": resp.text
+        }
+
+    return JSONResponse(
+        content=data,
+        status_code=resp.status_code,
+    )
 
 @app.get("/resumes")
 async def list_resumes(current_user=Depends(get_current_user)):
