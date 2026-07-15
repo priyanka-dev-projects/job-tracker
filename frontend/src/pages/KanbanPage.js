@@ -57,7 +57,7 @@ function Modal({ onClose, theme }) {
   const mutation = useMutation({
     mutationFn: () => appAPI.create(form),
     onSuccess: () => {
-      qc.invalidateQueries(["apps"]);
+      qc.invalidateQueries(["applications"]);
       qc.invalidateQueries(["stats"]);
       toast.success("Application added!");
       onClose();
