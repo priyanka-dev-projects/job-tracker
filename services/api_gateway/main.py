@@ -231,6 +231,9 @@ async def upload_resume(
             )
         }
 
+        print("RESUME_PARSER_URL =", RESUME_PARSER_URL)
+        print("Uploading to:", f"{RESUME_PARSER_URL}/resumes/upload")
+
         resp = await client.post(
             f"{RESUME_PARSER_URL}/resumes/upload",
             files=files,
