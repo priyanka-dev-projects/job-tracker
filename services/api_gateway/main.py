@@ -205,58 +205,58 @@ async def delete_resume(
         status_code=status_code,
     )
 
-@app.post("/resumes/upload")
-async def upload_resume(file: UploadFile = File(...), current_user=Depends(get_current_user)):
-    user_id = str(current_user["_id"])
-    async with httpx.AsyncClient(timeout=60) as client:
-        files = {"file": (file.filename, await file.read(), file.content_type)}
-        # resp  = await client.post(f"{RESUME_PARSER_URL}/resume/upload", files=files, headers={"X-User-ID": user_id})
-        resp  = await client.post(f"{RESUME_PARSER_URL}/resumes/upload", files=files, headers={"X-User-ID": user_id})
-    return resp.json()
-
-
 # @app.post("/resumes/upload")
-# async def upload_resume(
-#     file: UploadFile = File(...),
-#     current_user=Depends(get_current_user),
-# ):
+# async def upload_resume(file: UploadFile = File(...), current_user=Depends(get_current_user)):
 #     user_id = str(current_user["_id"])
-
 #     async with httpx.AsyncClient(timeout=60) as client:
-#         files = {
-#             "file": (
-#                 file.filename,
-#                 await file.read(),
-#                 file.content_type,
-#             )
-#         }
+#         files = {"file": (file.filename, await file.read(), file.content_type)}
+#         # resp  = await client.post(f"{RESUME_PARSER_URL}/resume/upload", files=files, headers={"X-User-ID": user_id})
+#         resp  = await client.post(f"{RESUME_PARSER_URL}/resumes/upload", files=files, headers={"X-User-ID": user_id})
+#     return resp.json()
 
-#         print("RESUME_PARSER_URL =", RESUME_PARSER_URL)
-#         print("Uploading to:", f"{RESUME_PARSER_URL}/resumes/upload")
 
-#         resp = await client.post(
-#             f"{RESUME_PARSER_URL}/resumes/upload",
-#             files=files,
-#             headers={
-#                 "X-User-ID": user_id,
-#             },
-#         )
+@app.post("/resumes/upload")
+async def upload_resume(
+    file: UploadFile = File(...),
+    current_user=Depends(get_current_user),
+):
+    user_id = str(current_user["_id"])
 
-#     print("STATUS:", resp.status_code)
-#     print("CONTENT-TYPE:", resp.headers.get("content-type"))
-#     print("BODY:", resp.text)
+    async with httpx.AsyncClient(timeout=60) as client:
+        files = {
+            "file": (
+                file.filename,
+                await file.read(),
+                file.content_type,
+            )
+        }
 
-#     try:
-#         data = resp.json()
-#     except Exception:
-#         data = {
-#             "detail": resp.text
-#         }
+        print("RESUME_PARSER_URL =", RESUME_PARSER_URL)
+        print("Uploading to:", f"{RESUME_PARSER_URL}/resumes/upload")
 
-#     return JSONResponse(
-#         content=data,
-#         status_code=resp.status_code,
-#     )
+        resp = await client.post(
+            f"{RESUME_PARSER_URL}/resumes/upload",
+            files=files,
+            headers={
+                "X-User-ID": user_id,
+            },
+        )
+
+    print("STATUS:", resp.status_code)
+    print("CONTENT-TYPE:", resp.headers.get("content-type"))
+    print("BODY:", resp.text)
+
+    try:
+        data = resp.json()
+    except Exception:
+        data = {
+            "detail": resp.text
+        }
+
+    return JSONResponse(
+        content=data,
+        status_code=resp.status_code,
+    )
 
 @app.get("/resumes")
 async def list_resumes(current_user=Depends(get_current_user)):
