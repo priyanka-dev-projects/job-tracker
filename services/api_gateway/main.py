@@ -40,7 +40,6 @@ APP_MANAGER_URL    = os.getenv("APP_MANAGER_URL",    "https://app-manager-4efl.o
 
 app = FastAPI(title="JAT API Gateway", version="1.0.0")
 
-print("******** API GATEWAY VERSION 15 JULY ********")
 
 app.add_middleware(
     CORSMiddleware,

@@ -411,8 +411,13 @@ export default function KanbanPage() {
   //   return acc;
   // }, {});
 
+  // const grouped = COLUMNS.reduce((acc, col) => {
+  //   let filtered = apps.filter((a) => a.status === col.id);
+
+  const applications = Array.isArray(apps) ? apps : [];
+
   const grouped = COLUMNS.reduce((acc, col) => {
-    let filtered = apps.filter((a) => a.status === col.id);
+    let filtered = applications.filter((a) => a.status === col.id);
 
     // Bring searched company to top
     if (search.trim()) {
