@@ -135,7 +135,9 @@ export default function DashboardPage() {
     enabled: !!user?.id,
   });
 
-  const recent = (apps || []).slice(0, 6);
+  // const recent = (apps || []).slice(0, 6);
+  const applications = Array.isArray(apps) ? apps : [];
+  const recent = applications.slice(0, 6);
   const by = stats?.by_status || {};
   const PIPELINE = [
     "wishlist",
