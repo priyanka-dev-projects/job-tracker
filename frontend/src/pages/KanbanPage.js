@@ -383,7 +383,8 @@ export default function KanbanPage() {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const { user, theme } = useAuth();
   const qc = useQueryClient();
-  const { data: apps = [], isLoading } = useQuery({
+
+  const { data, isLoading } = useQuery({
     queryKey: ["apps", user?.id, statusFilter, search],
     queryFn: () => appAPI.list(statusFilter, search).then((r) => r.data),
     enabled: !!user?.id,
