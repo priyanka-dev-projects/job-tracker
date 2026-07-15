@@ -40,7 +40,6 @@ APP_MANAGER_URL    = os.getenv("APP_MANAGER_URL",    "https://app-manager-4efl.o
 
 app = FastAPI(title="JAT API Gateway", version="1.0.0")
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -372,15 +371,51 @@ async def get_resume(resume_id: str, current_user=Depends(get_current_user)):
     return data
 
 
+# @app.get("/applications/stats/overview")
+# async def stats(current_user=Depends(get_current_user)):
+#     data, _ = await proxy("GET", f"{APP_MANAGER_URL}/applications/stats/overview", current_user)
+#     return data
+
+# # @app.get("/applications")
+# # async def list_applications(current_user=Depends(get_current_user)):
+#     data, _ = await proxy("GET", f"{APP_MANAGER_URL}/applications", current_user)
+#     return data
+
 @app.get("/applications/stats/overview")
 async def stats(current_user=Depends(get_current_user)):
-    data, _ = await proxy("GET", f"{APP_MANAGER_URL}/applications/stats/overview", current_user)
-    return data
+    data, status_code = await proxy(
+        "GET",
+        f"{APP_MANAGER_URL}/applications/stats/overview",
+        current_user,
+    )
+
+    return JSONResponse(
+        content=data,
+        status_code=status_code,
+    )
+
 
 @app.get("/applications")
-async def list_applications(current_user=Depends(get_current_user)):
-    data, _ = await proxy("GET", f"{APP_MANAGER_URL}/applications", current_user)
-    return data
+async def list_applications(
+    current_user=Depends(get_current_user),
+    status: str = Query("all"),
+    search: str = Query(""),
+):
+    data, status_code = await proxy(
+        "GET",
+        f"{APP_MANAGER_URL}/applications",
+        current_user,
+        params={
+            "status": status,
+            "search": search,
+        },
+    )
+
+    return JSONResponse(
+        content=data,
+        status_code=status_code,
+    )
+
 
 # @app.post("/applications")
 # async def create_application(request: Request, current_user=Depends(get_current_user)):
