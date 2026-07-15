@@ -233,6 +233,7 @@ async def upload_resume(
 
         print("RESUME_PARSER_URL =", RESUME_PARSER_URL)
         print("Uploading to:", f"{RESUME_PARSER_URL}/resumes/upload")
+        
 
         resp = await client.post(
             f"{RESUME_PARSER_URL}/resumes/upload",
@@ -250,7 +251,7 @@ async def upload_resume(
         data = resp.json()
     except Exception:
         data = {
-            "detail": resp.text
+            "detail": resp.json()
         }
 
     return JSONResponse(
