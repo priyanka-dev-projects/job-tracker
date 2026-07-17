@@ -1697,8 +1697,7 @@ export default function AppDetailPage() {
             </div>
           )} */}
 
-          {matchResult &&
-          (result.matched_skills?.length > 0 ||
+          {(result.matched_skills?.length > 0 ||
             result.missing_skills?.length > 0) && (
             <div
               style={{
