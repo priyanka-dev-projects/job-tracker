@@ -75,12 +75,16 @@ export default function AppDetailPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { user, theme } = useAuth();
-  const [matchResult, setMatch] = useState(null);
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
 
   // const [jdText, setJdText] = useState("");
   // const [selectedResume, setSelectedResume] = useState("");
+  // const [matchResult, setMatch] = useState(null);
+  const [matchResult, setMatch] = useState(() => {
+    const saved = localStorage.getItem(`matchResult-${id}`);
+    return saved ? JSON.parse(saved) : null;
+  });
   const [jdText, setJdText] = useState(
     () => localStorage.getItem("jdText") || "",
   );
@@ -104,6 +108,7 @@ export default function AppDetailPage() {
 
     localStorage.removeItem("jdText");
     localStorage.removeItem("selectedResume");
+    localStorage.removeItem(`matchResult-${id}`);
   };
 
   const { data: app, isLoading } = useQuery({
@@ -238,12 +243,23 @@ export default function AppDetailPage() {
 
   const matchMut = useMutation({
     mutationFn: () => matchAPI.match(selectedResume, id, jdText),
+    // onSuccess: (res) => {
+    //   setMatch(res.data);
+    //   // qc.invalidateQueries(["app", id]);
+    //   qc.invalidateQueries({
+    //     queryKey: ["app", user?.id, id],
+    //   });
+    //   toast.success(`Match: ${res.data.match_score}%`);
+    // },
     onSuccess: (res) => {
       setMatch(res.data);
-      // qc.invalidateQueries(["app", id]);
+
+      localStorage.setItem(`matchResult-${id}`, JSON.stringify(res.data));
+
       qc.invalidateQueries({
         queryKey: ["app", user?.id, id],
       });
+
       toast.success(`Match: ${res.data.match_score}%`);
     },
     onError: () =>
