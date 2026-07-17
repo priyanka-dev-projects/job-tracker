@@ -59,7 +59,10 @@ function Modal({ onClose, theme }) {
     onSuccess: () => {
       qc.invalidateQueries(["apps"]);
       qc.invalidateQueries(["stats"]);
-      toast.success("Application added!");
+      // toast.success("Application added!");
+      toast.success(
+        "Application saved. If the application doesn't appear immediately, the backend may still be starting (Render free tier). Please wait 30–60 seconds.",
+      );
       onClose();
     },
     onError: () => toast.error("Failed to create"),
