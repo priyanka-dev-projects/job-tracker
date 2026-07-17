@@ -81,9 +81,21 @@ export default function AppDetailPage() {
   // const [jdText, setJdText] = useState("");
   // const [selectedResume, setSelectedResume] = useState("");
   // const [matchResult, setMatch] = useState(null);
+  // const [matchResult, setMatch] = useState(() => {
+  //   const saved = localStorage.getItem(`matchResult-${id}`);
+  //   return saved ? JSON.parse(saved) : null;
+  // });
   const [matchResult, setMatch] = useState(() => {
     const saved = localStorage.getItem(`matchResult-${id}`);
-    return saved ? JSON.parse(saved) : null;
+
+    if (!saved) return null;
+
+    const data = JSON.parse(saved);
+
+    // Hide AI Recommendation after page refresh
+    data.recommendation = "";
+
+    return data;
   });
   const [jdText, setJdText] = useState(
     () => localStorage.getItem("jdText") || "",
@@ -1680,7 +1692,25 @@ export default function AppDetailPage() {
   </div>
 </div>
             )} */}
-            {matchResult && (
+            {/* {matchResult && (
+              <div
+                style={{
+                  marginTop: 20,
+                  padding: "18px",
+                  borderRadius: 12,
+                  background: theme.bg,
+                  border: `1px solid ${theme.border}`,
+                }}
+              >
+                <h4 style={{ color: theme.text }}>AI Recommendation</h4>
+
+                <p style={{ color: theme.subtext }}>
+                  {matchResult.recommendation}
+                </p>
+              </div>
+            )} */}
+
+            {matchResult?.recommendation && (
               <div
                 style={{
                   marginTop: 20,
