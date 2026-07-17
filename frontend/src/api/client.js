@@ -166,23 +166,57 @@ const parseResponse = async (response, responseType = "json") => {
     throw new Error("Session expired");
   }
 
+  // if (!response.ok) {
+  //   let errorMessage = `Request failed (${response.status})`;
+
+  //   try {
+  //     const errorData = await response.json();
+
+  //     errorMessage = errorData?.detail || errorData?.message || errorMessage;
+  //   } catch {
+  //     // Response was not JSON
+  //   }
+
+  //   const error = new Error(errorMessage);
+
+  //   error.status = response.status;
+
+  //   throw error;
+  // }
+
+
   if (!response.ok) {
+
+    // Backend is waking up (Render Free Tier)
+    if (response.status === 502 || response.status === 503) {
+        const error = new Error("BACKEND_STARTING");
+        error.status = response.status;
+        throw error;
+    }
+
     let errorMessage = `Request failed (${response.status})`;
 
     try {
-      const errorData = await response.json();
-
-      errorMessage = errorData?.detail || errorData?.message || errorMessage;
+        const errorData = await response.json();
+        errorMessage =
+            errorData?.detail ||
+            errorData?.message ||
+            errorMessage;
     } catch {
-      // Response was not JSON
+        // Response was not JSON
     }
 
     const error = new Error(errorMessage);
-
     error.status = response.status;
 
     throw error;
-  }
+}
+
+
+
+
+
+
 
   if (responseType === "blob") {
     const blob = await response.blob();

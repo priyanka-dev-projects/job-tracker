@@ -115,10 +115,14 @@ function StatusBadge({ status }) {
 
 export default function DashboardPage() {
   const { user, theme } = useAuth();
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, error: statsError } = useQuery({
     queryKey: ["stats", user?.id],
     queryFn: () => appAPI.stats().then((r) => r.data),
     enabled: !!user?.id,
+
+    retry: 10,
+
+    retryDelay: 5000,
   });
 
   const chartData = [
@@ -129,10 +133,14 @@ export default function DashboardPage() {
     { name: "Offer", value: stats?.by_status?.offer || 0 },
     { name: "Rejected", value: stats?.by_status?.rejected || 0 },
   ];
-  const { data: apps } = useQuery({
+  const { data: apps, error: appsError } = useQuery({
     queryKey: ["apps", user?.id],
     queryFn: () => appAPI.list().then((r) => r.data),
     enabled: !!user?.id,
+
+    retry: 10,
+
+    retryDelay: 5000,
   });
 
   // const recent = (apps || []).slice(0, 6);
@@ -148,9 +156,38 @@ export default function DashboardPage() {
     "rejected",
   ];
 
-  if (isLoading) {
-    return <Loader text="Loading applications..." />;
-  }
+  // if (isLoading) {
+  //   return <Loader text="Loading applications..." />;
+  // }
+
+  if (
+  statsError?.message === "BACKEND_STARTING" ||
+  appsError?.message === "BACKEND_STARTING"
+) {
+  return (
+    <div
+      style={{
+        height: "70vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        textAlign: "center",
+        padding: 20,
+      }}
+    >
+      <h2>🚀 Starting backend...</h2>
+
+      <p style={{ maxWidth: 500 }}>
+        This application is hosted on Render's free tier.
+        The backend is starting and may take
+        <strong> 30–60 seconds</strong> on the first visit.
+      </p>
+
+      <p>Please wait...</p>
+    </div>
+  );
+}
 
   return (
     <div>
