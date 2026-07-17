@@ -149,70 +149,67 @@ export default function AppDetailPage() {
   //   onError: () => toast.error("Delete failed"),
   // });
 
-//   const deleteMut = useMutation({
-//   mutationFn: () => appAPI.delete(id),
+  //   const deleteMut = useMutation({
+  //   mutationFn: () => appAPI.delete(id),
 
-//   onSuccess: async () => {
-//     toast.success("Application deleted successfully");
+  //   onSuccess: async () => {
+  //     toast.success("Application deleted successfully");
 
-//     // Refetch application lists so the deleted application disappears.
-//     await queryClient.invalidateQueries({
-//       queryKey: ["applications"],
-//     });
+  //     // Refetch application lists so the deleted application disappears.
+  //     await queryClient.invalidateQueries({
+  //       queryKey: ["applications"],
+  //     });
 
-//     // Remove deleted application's detail cache.
-//     queryClient.removeQueries({
-//       queryKey: ["application", id],
-//       exact: true,
-//     });
+  //     // Remove deleted application's detail cache.
+  //     queryClient.removeQueries({
+  //       queryKey: ["application", id],
+  //       exact: true,
+  //     });
 
-//     // Go back to dashboard after cache is updated.
-//     navigate("/");
-//   },
+  //     // Go back to dashboard after cache is updated.
+  //     navigate("/");
+  //   },
 
-//   onError: (error) => {
-//     console.error("DELETE APPLICATION ERROR:", error);
+  //   onError: (error) => {
+  //     console.error("DELETE APPLICATION ERROR:", error);
 
-//     toast.error(
-//       error.message || "Failed to delete application"
-//     );
-//   },
-// });
+  //     toast.error(
+  //       error.message || "Failed to delete application"
+  //     );
+  //   },
+  // });
 
-const deleteMut = useMutation({
-  mutationFn: () => appAPI.delete(id),
+  const deleteMut = useMutation({
+    mutationFn: () => appAPI.delete(id),
 
-  onSuccess: async () => {
-    // Remove the deleted application's detail cache.
-    qc.removeQueries({
-      queryKey: ["app", user?.id, id],
-      exact: true,
-    });
+    onSuccess: async () => {
+      // Remove the deleted application's detail cache.
+      qc.removeQueries({
+        queryKey: ["app", user?.id, id],
+        exact: true,
+      });
 
-    // Your application-list query key is ["apps"], not ["applications"].
-    await qc.invalidateQueries({
-      queryKey: ["apps"],
-    });
+      // Your application-list query key is ["apps"], not ["applications"].
+      await qc.invalidateQueries({
+        queryKey: ["apps"],
+      });
 
-    // Refresh dashboard statistics.
-    await qc.invalidateQueries({
-      queryKey: ["stats"],
-    });
+      // Refresh dashboard statistics.
+      await qc.invalidateQueries({
+        queryKey: ["stats"],
+      });
 
-    toast.success("Application deleted successfully");
+      toast.success("Application deleted successfully");
 
-    navigate("/");
-  },
+      navigate("/");
+    },
 
-  onError: (error) => {
-    console.error("DELETE APPLICATION ERROR:", error);
+    onError: (error) => {
+      console.error("DELETE APPLICATION ERROR:", error);
 
-    toast.error(
-      error.message || "Failed to delete application"
-    );
-  },
-});
-
+      toast.error(error.message || "Failed to delete application");
+    },
+  });
 
   const matchMut = useMutation({
     mutationFn: () => matchAPI.match(selectedResume, id, jdText),
@@ -262,9 +259,7 @@ const deleteMut = useMutation({
   };
 
   return (
-    <div style={{ width: "100%",
-      maxWidth: "100%",
-      boxSizing: "border-box", }}>
+    <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
       {/* Header */}
       <div
         style={{
@@ -420,32 +415,30 @@ const deleteMut = useMutation({
         </div>
 
         {/* Delete */}
-          <button
-            onClick={() => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this application?"
-      )
-    ) {
-      deleteMut.mutate();
-    }
-  }}
-  disabled={deleteMut.isPending}
-            style={{
-              padding: "0.65rem",
-              color: "#fef2f2",
-              border: "1px solid #fecaca",
-              borderRadius: 10,
-              background: "#ef4444",
-              fontWeight: 600,
-              cursor: "pointer",
-              fontSize: 13,
-            }}
-          >
-            {deleteMut.isPending
-    ? "Deleting..."
-    : "Delete application"}
-          </button>
+        <button
+          onClick={() => {
+            if (
+              window.confirm(
+                "Are you sure you want to delete this application?",
+              )
+            ) {
+              deleteMut.mutate();
+            }
+          }}
+          disabled={deleteMut.isPending}
+          style={{
+            padding: "0.65rem",
+            color: "#fef2f2",
+            border: "1px solid #fecaca",
+            borderRadius: 10,
+            background: "#ef4444",
+            fontWeight: 600,
+            cursor: "pointer",
+            fontSize: 13,
+          }}
+        >
+          {deleteMut.isPending ? "Deleting..." : "Delete application"}
+        </button>
       </div>
 
       {/* Application Details */}
@@ -1223,25 +1216,12 @@ const deleteMut = useMutation({
 
           <div
             style={{
-              background: theme.card,
+              maxHeight: "300px", // change to 250px, 350px, etc.
+              overflowY: "auto",
               border: `1px solid ${theme.border}`,
-              borderRadius: 14,
-              padding: "1.2rem",
+              borderRadius: 10,
             }}
           >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "#94a3b8",
-                textTransform: "uppercase",
-                letterSpacing: 1,
-                marginBottom: 18,
-              }}
-            >
-              Status History
-            </div>
-
             <table
               style={{
                 width: "100%",
@@ -1249,12 +1229,15 @@ const deleteMut = useMutation({
                 fontSize: 13,
               }}
             >
-              <thead>
-                <tr
-                  style={{
-                    background: "#f8fafc",
-                  }}
-                >
+              <thead
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  background: "#f8fafc",
+                  zIndex: 1,
+                }}
+              >
+                <tr>
                   <th style={{ padding: 10, textAlign: "left" }}>Stage</th>
                   <th style={{ padding: 10, textAlign: "left" }}>Date</th>
                   <th style={{ padding: 10, textAlign: "left" }}>Time</th>
@@ -1273,19 +1256,6 @@ const deleteMut = useMutation({
                           borderBottom: `1px solid ${theme.border}`,
                         }}
                       >
-                        {/* <span
-                style={{
-                  background: STATUS_COLOR[item.status],
-                  color: "#fff",
-                  padding: "4px 10px",
-                  borderRadius: 20,
-                  fontSize: 12,
-                  textTransform: "capitalize",
-                }}
-              >
-                {item.status}
-              </span> */}
-
                         <span
                           style={{
                             background: STATUS_BG[item.status],
@@ -1322,10 +1292,6 @@ const deleteMut = useMutation({
                           borderBottom: `1px solid ${theme.border}`,
                         }}
                       >
-                        {/* {date.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })} */}
                         {date.toLocaleTimeString("en-IN", {
                           timeZone: "Asia/Kolkata",
                           hour: "2-digit",
@@ -1857,12 +1823,11 @@ const deleteMut = useMutation({
             </div>
           )}
         </div>
-
       </div>
 
       {/* Resume Match */}
 
-        {/* {score != null && (
+      {/* {score != null && (
           <div
             style={{
               background: theme.card,
@@ -2008,268 +1973,259 @@ const deleteMut = useMutation({
           </div>
         )} */}
 
-
-        {score != null && (
-  <div
-    style={{
-      background: theme.card,
-      border: `1px solid ${theme.border}`,
-      borderRadius: 14,
-      padding: "1.5rem",
-      width: "100%",
-      boxSizing: "border-box",
-      marginTop: 14,
-    }}
-  >
-    {/* HEADING */}
-
-    <div
-      style={{
-        fontSize: 12,
-        fontWeight: 700,
-        color: "#94a3b8",
-        textTransform: "uppercase",
-        letterSpacing: 1,
-        marginBottom: 24,
-        textAlign: "center",
-      }}
-    >
-      Resume Analysis
-    </div>
-
-    {/* SUMMARY */}
-
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "stretch",
-        gap: 18,
-        flexWrap: "wrap",
-      }}
-    >
-      {/* MATCH SCORE */}
-
-      <div
-        style={{
-          width: 180,
-          minHeight: 125,
-          background: theme.bg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: 12,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 16,
-          boxSizing: "border-box",
-        }}
-      >
+      {score != null && (
         <div
           style={{
-            fontSize: 32,
-            fontWeight: 800,
-            color:
-              score >= 80
-                ? "#22c55e"
+            background: theme.card,
+            border: `1px solid ${theme.border}`,
+            borderRadius: 14,
+            padding: "1.5rem",
+            width: "100%",
+            boxSizing: "border-box",
+            marginTop: 14,
+          }}
+        >
+          {/* HEADING */}
+
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+              marginBottom: 24,
+              textAlign: "center",
+            }}
+          >
+            Resume Analysis
+          </div>
+
+          {/* SUMMARY */}
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "stretch",
+              gap: 18,
+              flexWrap: "wrap",
+            }}
+          >
+            {/* MATCH SCORE */}
+
+            <div
+              style={{
+                width: 180,
+                minHeight: 125,
+                background: theme.bg,
+                border: `1px solid ${theme.border}`,
+                borderRadius: 12,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 16,
+                boxSizing: "border-box",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 32,
+                  fontWeight: 800,
+                  color:
+                    score >= 80
+                      ? "#22c55e"
+                      : score >= 60
+                        ? "#f59e0b"
+                        : "#ef4444",
+                }}
+              >
+                {score}%
+              </div>
+
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 13,
+                  color: theme.subtext,
+                  fontWeight: 600,
+                }}
+              >
+                Match Score
+              </div>
+            </div>
+
+            {/* MATCHED SKILLS */}
+
+            <div
+              style={{
+                width: 180,
+                minHeight: 125,
+                background: theme.bg,
+                border: `1px solid ${theme.border}`,
+                borderRadius: 12,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 16,
+                boxSizing: "border-box",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 32,
+                  fontWeight: 800,
+                  color: "#22c55e",
+                }}
+              >
+                {result.matched_skills?.length || 0}
+              </div>
+
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 13,
+                  color: theme.subtext,
+                  fontWeight: 600,
+                }}
+              >
+                Matched Skills
+              </div>
+            </div>
+
+            {/* MISSING SKILLS */}
+
+            <div
+              style={{
+                width: 180,
+                minHeight: 125,
+                background: theme.bg,
+                border: `1px solid ${theme.border}`,
+                borderRadius: 12,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 16,
+                boxSizing: "border-box",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 32,
+                  fontWeight: 800,
+                  color: "#ef4444",
+                }}
+              >
+                {result.missing_skills?.length || 0}
+              </div>
+
+              <div
+                style={{
+                  marginTop: 6,
+                  fontSize: 13,
+                  color: theme.subtext,
+                  fontWeight: 600,
+                }}
+              >
+                Missing Skills
+              </div>
+            </div>
+          </div>
+
+          {/* OVERALL RATING */}
+
+          <div
+            style={{
+              marginTop: 22,
+              textAlign: "center",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                padding: "6px 16px",
+                borderRadius: 20,
+
+                background:
+                  score >= 80 ? "#dcfce7" : score >= 60 ? "#fef3c7" : "#fee2e2",
+
+                color:
+                  score >= 80 ? "#16a34a" : score >= 60 ? "#d97706" : "#dc2626",
+
+                fontSize: 13,
+                fontWeight: 700,
+              }}
+            >
+              {score >= 80
+                ? "Excellent Match"
                 : score >= 60
-                  ? "#f59e0b"
-                  : "#ef4444",
-          }}
-        >
-          {score}%
+                  ? "Good Match"
+                  : "Needs Improvement"}
+            </span>
+          </div>
+
+          {/* PROGRESS BAR */}
+
+          <div
+            style={{
+              maxWidth: 700,
+              margin: "24px auto 0",
+            }}
+          >
+            <div
+              style={{
+                height: 9,
+                background: theme.bg,
+                borderRadius: 20,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  width: `${score}%`,
+                  height: "100%",
+
+                  background:
+                    score >= 80
+                      ? "#22c55e"
+                      : score >= 60
+                        ? "#f59e0b"
+                        : "#ef4444",
+
+                  borderRadius: 20,
+                  transition: "width 0.5s ease",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* RECOMMENDATION */}
+
+          <div
+            style={{
+              maxWidth: 700,
+              margin: "14px auto 0",
+              textAlign: "center",
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: theme.subtext,
+            }}
+          >
+            {score >= 80 &&
+              "Excellent profile match. Your resume aligns strongly with the job requirements."}
+
+            {score >= 60 &&
+              score < 80 &&
+              "Good profile match. Improving the missing skills can strengthen your application."}
+
+            {score < 60 &&
+              "Several important skills are missing. Consider improving the identified skill gaps before applying."}
+          </div>
         </div>
-
-        <div
-          style={{
-            marginTop: 6,
-            fontSize: 13,
-            color: theme.subtext,
-            fontWeight: 600,
-          }}
-        >
-          Match Score
-        </div>
-      </div>
-
-      {/* MATCHED SKILLS */}
-
-      <div
-        style={{
-          width: 180,
-          minHeight: 125,
-          background: theme.bg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: 12,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 16,
-          boxSizing: "border-box",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 32,
-            fontWeight: 800,
-            color: "#22c55e",
-          }}
-        >
-          {result.matched_skills?.length || 0}
-        </div>
-
-        <div
-          style={{
-            marginTop: 6,
-            fontSize: 13,
-            color: theme.subtext,
-            fontWeight: 600,
-          }}
-        >
-          Matched Skills
-        </div>
-      </div>
-
-      {/* MISSING SKILLS */}
-
-      <div
-        style={{
-          width: 180,
-          minHeight: 125,
-          background: theme.bg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: 12,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 16,
-          boxSizing: "border-box",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 32,
-            fontWeight: 800,
-            color: "#ef4444",
-          }}
-        >
-          {result.missing_skills?.length || 0}
-        </div>
-
-        <div
-          style={{
-            marginTop: 6,
-            fontSize: 13,
-            color: theme.subtext,
-            fontWeight: 600,
-          }}
-        >
-          Missing Skills
-        </div>
-      </div>
-    </div>
-
-    {/* OVERALL RATING */}
-
-    <div
-      style={{
-        marginTop: 22,
-        textAlign: "center",
-      }}
-    >
-      <span
-        style={{
-          display: "inline-block",
-          padding: "6px 16px",
-          borderRadius: 20,
-
-          background:
-            score >= 80
-              ? "#dcfce7"
-              : score >= 60
-                ? "#fef3c7"
-                : "#fee2e2",
-
-          color:
-            score >= 80
-              ? "#16a34a"
-              : score >= 60
-                ? "#d97706"
-                : "#dc2626",
-
-          fontSize: 13,
-          fontWeight: 700,
-        }}
-      >
-        {score >= 80
-          ? "Excellent Match"
-          : score >= 60
-            ? "Good Match"
-            : "Needs Improvement"}
-      </span>
-    </div>
-
-    {/* PROGRESS BAR */}
-
-    <div
-      style={{
-        maxWidth: 700,
-        margin: "24px auto 0",
-      }}
-    >
-      <div
-        style={{
-          height: 9,
-          background: theme.bg,
-          borderRadius: 20,
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            width: `${score}%`,
-            height: "100%",
-
-            background:
-              score >= 80
-                ? "#22c55e"
-                : score >= 60
-                  ? "#f59e0b"
-                  : "#ef4444",
-
-            borderRadius: 20,
-            transition: "width 0.5s ease",
-          }}
-        />
-      </div>
-    </div>
-
-    {/* RECOMMENDATION */}
-
-    <div
-      style={{
-        maxWidth: 700,
-        margin: "14px auto 0",
-        textAlign: "center",
-        fontSize: 13,
-        lineHeight: 1.6,
-        color: theme.subtext,
-      }}
-    >
-      {score >= 80 &&
-        "Excellent profile match. Your resume aligns strongly with the job requirements."}
-
-      {score >= 60 &&
-        score < 80 &&
-        "Good profile match. Improving the missing skills can strengthen your application."}
-
-      {score < 60 &&
-        "Several important skills are missing. Consider improving the identified skill gaps before applying."}
-    </div>
-  </div>
-)}
+      )}
 
       <style>{`@media(max-width:640px){ .app-detail-grid { grid-template-columns: 1fr !important; } }`}</style>
     </div>
