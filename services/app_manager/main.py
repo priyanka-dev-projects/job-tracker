@@ -128,8 +128,12 @@ async def create_application(
     }
 
     result = await db.applications.insert_one(doc)
-    doc["_id"] = result.inserted_id
+    print("Inserted ID:", result.inserted_id)
 
+    saved = await db.applications.find_one({"_id": result.inserted_id})
+    print("Saved document:", saved)
+
+    doc["_id"] = result.inserted_id
     return serialize(doc)
 
 
@@ -203,8 +207,26 @@ async def list_applications(
 ):
     print("GET USER:", x_user_id)
 
-    return []
+    query = {"user_id": x_user_id}
 
+    if status and status != "all":
+        query["status"] = status
+
+    if search:
+        query["company"] = {
+            "$regex": search,
+            "$options": "i",
+        }
+
+    print("QUERY:", query)
+
+    count = await db.applications.count_documents({})
+    print("TOTAL DOCS:", count)
+
+    docs = await db.applications.find(query).to_list(length=100)
+    print("MATCHED DOCS:", docs)
+
+    return [serialize(doc) for doc in docs]
 
 
 
