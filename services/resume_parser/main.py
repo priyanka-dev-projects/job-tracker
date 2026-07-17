@@ -1378,6 +1378,7 @@ import os
 import io
 import re
 import uuid
+import traceback
 from datetime import datetime, timezone
 from typing import List
 
@@ -2101,163 +2102,219 @@ async def list_resumes(
 # UPLOAD RESUME
 # ============================================================
 
+# @app.post("/resumes/upload")
+# async def upload_resume(
+
+#     file: UploadFile = File(...),
+
+#     x_user_id: str = Header(...),
+
+# ):
+
+#     if not file.filename:
+
+#         raise HTTPException(
+#             status_code=400,
+#             detail="Filename missing",
+#         )
+
+
+#     extension = os.path.splitext(
+#         file.filename
+#     )[1].lower()
+
+
+#     allowed_extensions = {
+#         ".pdf",
+#         ".docx",
+#         ".txt",
+#     }
+
+
+#     if extension not in allowed_extensions:
+
+#         raise HTTPException(
+#             status_code=400,
+#             detail=(
+#                 "Only PDF, DOCX and TXT files are supported"
+#             ),
+#         )
+
+
+#     file_bytes = await file.read()
+
+
+#     if not file_bytes:
+
+#         raise HTTPException(
+#             status_code=400,
+#             detail="Uploaded file is empty",
+#         )
+
+
+#     MAX_FILE_SIZE = 10 * 1024 * 1024
+
+
+#     if len(file_bytes) > MAX_FILE_SIZE:
+
+#         raise HTTPException(
+#             status_code=413,
+#             detail="Maximum file size is 10 MB",
+#         )
+
+
+#     # Parse resume
+
+#     raw_text = parse_resume(
+#         file.filename,
+#         file_bytes,
+#     )
+
+
+#     if not raw_text.strip():
+
+#         raise HTTPException(
+#             status_code=400,
+#             detail=(
+#                 "No readable text found in resume"
+#             ),
+#         )
+
+
+#     skills = extract_skills(
+#         raw_text
+#     )
+
+
+#     # Unique object name prevents filename collisions
+
+#     object_name = (
+
+#         f"{x_user_id}/"
+
+#         f"{uuid.uuid4()}"
+
+#         f"{extension}"
+
+#     )
+
+
+#     await upload_storage_file(
+#         object_name=object_name,
+#         file_bytes=file_bytes,
+#         content_type=(
+#             file.content_type
+#             or "application/octet-stream"
+#         ),
+#     )
+
+#     now = datetime.now(timezone.utc)
+
+
+#     resume_document = {
+
+#         "user_id":
+#             x_user_id,
+
+#         "original_filename":
+#             file.filename,
+
+#         "object_name":
+#             object_name,
+
+#         "content_type":
+#             file.content_type
+#             or "application/octet-stream",
+
+#         "file_size":
+#             len(file_bytes),
+
+#         "raw_text":
+#             raw_text,
+
+#         "parsed": {
+
+#             "skills":
+#                 skills,
+
+#         },
+
+#         "created_at":
+#             now,
+
+#         "updated_at":
+#             now,
+
+#     }
+
+
+#     result = await db.resumes.insert_one(
+#         resume_document
+#     )
+
+
+#     resume_document["_id"] = result.inserted_id
+
+
+#     return serialize_resume(
+#         resume_document
+#     )
+
 @app.post("/resumes/upload")
 async def upload_resume(
-
     file: UploadFile = File(...),
-
     x_user_id: str = Header(...),
-
 ):
+    try:
+        print("STEP 1 - Request received")
 
-    if not file.filename:
+        file_bytes = await file.read()
+        print("STEP 2 - File read")
 
-        raise HTTPException(
-            status_code=400,
-            detail="Filename missing",
+        raw_text = parse_resume(file.filename, file_bytes)
+        print("STEP 3 - Resume parsed")
+
+        skills = extract_skills(raw_text)
+        print("STEP 4 - Skills extracted")
+
+        object_name = f"{x_user_id}/{uuid.uuid4()}{os.path.splitext(file.filename)[1].lower()}"
+
+        await upload_storage_file(
+            object_name=object_name,
+            file_bytes=file_bytes,
+            content_type=file.content_type or "application/octet-stream",
         )
+        print("STEP 5 - Uploaded to Supabase")
+
+        # Existing MongoDB insert code...
+        print("STEP 6 - MongoDB inserted")
+
+        return serialize_resume(resume_document)
+
+    except Exception:
+        traceback.print_exc()
+        raise
 
 
-    extension = os.path.splitext(
-        file.filename
-    )[1].lower()
 
 
-    allowed_extensions = {
-        ".pdf",
-        ".docx",
-        ".txt",
-    }
 
 
-    if extension not in allowed_extensions:
-
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "Only PDF, DOCX and TXT files are supported"
-            ),
-        )
 
 
-    file_bytes = await file.read()
 
 
-    if not file_bytes:
-
-        raise HTTPException(
-            status_code=400,
-            detail="Uploaded file is empty",
-        )
 
 
-    MAX_FILE_SIZE = 10 * 1024 * 1024
 
 
-    if len(file_bytes) > MAX_FILE_SIZE:
-
-        raise HTTPException(
-            status_code=413,
-            detail="Maximum file size is 10 MB",
-        )
 
 
-    # Parse resume
-
-    raw_text = parse_resume(
-        file.filename,
-        file_bytes,
-    )
 
 
-    if not raw_text.strip():
-
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                "No readable text found in resume"
-            ),
-        )
 
 
-    skills = extract_skills(
-        raw_text
-    )
 
-
-    # Unique object name prevents filename collisions
-
-    object_name = (
-
-        f"{x_user_id}/"
-
-        f"{uuid.uuid4()}"
-
-        f"{extension}"
-
-    )
-
-
-    await upload_storage_file(
-        object_name=object_name,
-        file_bytes=file_bytes,
-        content_type=(
-            file.content_type
-            or "application/octet-stream"
-        ),
-    )
-
-    now = datetime.now(timezone.utc)
-
-
-    resume_document = {
-
-        "user_id":
-            x_user_id,
-
-        "original_filename":
-            file.filename,
-
-        "object_name":
-            object_name,
-
-        "content_type":
-            file.content_type
-            or "application/octet-stream",
-
-        "file_size":
-            len(file_bytes),
-
-        "raw_text":
-            raw_text,
-
-        "parsed": {
-
-            "skills":
-                skills,
-
-        },
-
-        "created_at":
-            now,
-
-        "updated_at":
-            now,
-
-    }
-
-
-    result = await db.resumes.insert_one(
-        resume_document
-    )
-
-
-    resume_document["_id"] = result.inserted_id
-
-
-    return serialize_resume(
-        resume_document
-    )
 
 
 # ============================================================
