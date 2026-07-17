@@ -297,14 +297,6 @@ export default function AppDetailPage() {
       toast.error("Match failed — ensure resume and JD are provided"),
   });
 
-  if (isLoading) return <Loader text="Loading applications..." />;
-  if (!app)
-    return (
-      <div style={{ textAlign: "center", padding: "3rem", color: "#ef4444" }}>
-        Not found
-      </div>
-    );
-
   const result = matchResult || {
     matched_skills: [],
     // missing_skills: app.skill_gaps || [],
@@ -340,6 +332,14 @@ export default function AppDetailPage() {
     outline: "none",
     boxSizing: "border-box",
   };
+
+  if (isLoading) return <Loader text="Loading applications..." />;
+  if (!app)
+    return (
+      <div style={{ textAlign: "center", padding: "3rem", color: "#ef4444" }}>
+        Not found
+      </div>
+    );
 
   return (
     <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
