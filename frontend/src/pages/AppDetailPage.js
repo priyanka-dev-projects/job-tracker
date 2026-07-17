@@ -1216,7 +1216,7 @@ export default function AppDetailPage() {
 
           <div
             style={{
-              maxHeight: "100px", // change to 250px, 350px, etc.
+              maxHeight: "250px", // change to 250px, 350px, etc.
               overflowY: "auto",
               border: `1px solid ${theme.border}`,
               borderRadius: 10,
