@@ -80,21 +80,70 @@ def serialize(doc: dict) -> dict:
 
     return doc
 
+# @app.post("/applications")
+# async def create_application(body: ApplicationCreate, x_user_id: str = Header(...)):
+#     print("POST USER:", x_user_id)
+#     # now    = datetime.utcnow()
+#     now = datetime.now(timezone.utc)
+#     status = body.status if body.status in VALID_STATUSES else "wishlist"
+#     doc    = {
+#         "user_id": x_user_id, "company": body.company, "role": body.role,
+#         "job_url": body.job_url, "resume_id": body.resume_id, "notes": body.notes,
+#         "status": status, "match_score": None, "skill_gaps": [],
+#         "timeline": [{"status": status, "timestamp": now, "note": "Application created"}],
+#         "created_at": now, "updated_at": now,
+#     }
+#     result = await db.applications.insert_one(doc)
+#     doc["_id"] = result.inserted_id
+#     return serialize(doc)
+
 @app.post("/applications")
-async def create_application(body: ApplicationCreate, x_user_id: str = Header(...)):
-    # now    = datetime.utcnow()
+async def create_application(
+    body: ApplicationCreate,
+    x_user_id: str = Header(...),
+):
+    print("POST USER:", x_user_id)
+
     now = datetime.now(timezone.utc)
+
     status = body.status if body.status in VALID_STATUSES else "wishlist"
-    doc    = {
-        "user_id": x_user_id, "company": body.company, "role": body.role,
-        "job_url": body.job_url, "resume_id": body.resume_id, "notes": body.notes,
-        "status": status, "match_score": None, "skill_gaps": [],
-        "timeline": [{"status": status, "timestamp": now, "note": "Application created"}],
-        "created_at": now, "updated_at": now,
+
+    doc = {
+        "user_id": x_user_id,
+        "company": body.company,
+        "role": body.role,
+        "job_url": body.job_url,
+        "resume_id": body.resume_id,
+        "notes": body.notes,
+        "status": status,
+        "match_score": None,
+        "skill_gaps": [],
+        "timeline": [{
+            "status": status,
+            "timestamp": now,
+            "note": "Application created"
+        }],
+        "created_at": now,
+        "updated_at": now,
     }
+
     result = await db.applications.insert_one(doc)
     doc["_id"] = result.inserted_id
+
     return serialize(doc)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @app.get("/applications/stats/overview")
 async def stats(x_user_id: str = Header(...)):
@@ -152,6 +201,8 @@ async def list_applications(
     status: Optional[str] = None,
     search: Optional[str] = None,
 ):
+    print("GET USER:", x_user_id)
+
     return []
 
 
