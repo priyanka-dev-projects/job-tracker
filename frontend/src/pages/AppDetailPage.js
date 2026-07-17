@@ -105,6 +105,32 @@ export default function AppDetailPage() {
     () => localStorage.getItem("selectedResume") || "",
   );
 
+  const matchMut = useMutation({
+    mutationFn: () => matchAPI.match(selectedResume, id, jdText),
+    // onSuccess: (res) => {
+    //   setMatch(res.data);
+    //   // qc.invalidateQueries(["app", id]);
+    //   qc.invalidateQueries({
+    //     queryKey: ["app", user?.id, id],
+    //   });
+    //   toast.success(`Match: ${res.data.match_score}%`);
+    // },
+    onSuccess: (res) => {
+      setMatch(res.data);
+      setScore(res.data.match_score);
+
+      localStorage.setItem(`matchResult-${id}`, JSON.stringify(res.data));
+
+      qc.invalidateQueries({
+        queryKey: ["app", user?.id, id],
+      });
+
+      toast.success(`Match: ${res.data.match_score}%`);
+    },
+    onError: () =>
+      toast.error("Match failed — ensure resume and JD are provided"),
+  });
+
   useEffect(() => {
     localStorage.setItem("jdText", jdText);
   }, [jdText]);
@@ -269,32 +295,6 @@ export default function AppDetailPage() {
 
       toast.error(error.message || "Failed to delete application");
     },
-  });
-
-  const matchMut = useMutation({
-    mutationFn: () => matchAPI.match(selectedResume, id, jdText),
-    // onSuccess: (res) => {
-    //   setMatch(res.data);
-    //   // qc.invalidateQueries(["app", id]);
-    //   qc.invalidateQueries({
-    //     queryKey: ["app", user?.id, id],
-    //   });
-    //   toast.success(`Match: ${res.data.match_score}%`);
-    // },
-    onSuccess: (res) => {
-      setMatch(res.data);
-      setScore(res.data.match_score);
-
-      localStorage.setItem(`matchResult-${id}`, JSON.stringify(res.data));
-
-      qc.invalidateQueries({
-        queryKey: ["app", user?.id, id],
-      });
-
-      toast.success(`Match: ${res.data.match_score}%`);
-    },
-    onError: () =>
-      toast.error("Match failed — ensure resume and JD are provided"),
   });
 
   const result = matchResult || {
