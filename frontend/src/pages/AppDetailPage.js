@@ -113,10 +113,28 @@ export default function AppDetailPage() {
     localStorage.setItem("selectedResume", selectedResume);
   }, [selectedResume]);
 
+  // const handleReset = () => {
+  //   setSelectedResume("");
+  //   setJdText("");
+  //   setMatch(null);
+
+  //   localStorage.removeItem("jdText");
+  //   localStorage.removeItem("selectedResume");
+  //   localStorage.removeItem(`matchResult-${id}`);
+  // };
+
   const handleReset = () => {
     setSelectedResume("");
     setJdText("");
-    setMatch(null);
+
+    setMatch({
+      match_score: 0,
+      matched_skills: [],
+      missing_skills: [],
+      recommendation: "",
+    });
+
+    setScore(0);
 
     localStorage.removeItem("jdText");
     localStorage.removeItem("selectedResume");
@@ -265,6 +283,7 @@ export default function AppDetailPage() {
     // },
     onSuccess: (res) => {
       setMatch(res.data);
+      setScore(res.data.match_score);
 
       localStorage.setItem(`matchResult-${id}`, JSON.stringify(res.data));
 
@@ -288,9 +307,20 @@ export default function AppDetailPage() {
 
   const result = matchResult || {
     matched_skills: [],
-    missing_skills: app.skill_gaps || [],
+    // missing_skills: app.skill_gaps || [],
+    missing_skills: [],
   };
-  const score = app.match_score;
+  // const score = app.match_score;
+
+  const [score, setScore] = useState(() => {
+    const saved = localStorage.getItem(`matchResult-${id}`);
+
+    if (saved) {
+      return JSON.parse(saved).match_score;
+    }
+
+    return app?.match_score ?? 0;
+  });
 
   const startEdit = () => {
     setEditForm({
