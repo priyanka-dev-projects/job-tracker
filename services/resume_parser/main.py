@@ -2260,6 +2260,75 @@ async def list_resumes(
 #         resume_document
 #     )
 
+# @app.post("/resumes/upload")
+# async def upload_resume(
+#     file: UploadFile = File(...),
+#     x_user_id: str = Header(...),
+# ):
+#     try:
+#         print("STEP 1 - Request received")
+
+#         file_bytes = await file.read()
+#         print("STEP 2 - File read")
+
+#         raw_text = parse_resume(file.filename, file_bytes)
+#         print("STEP 3 - Resume parsed")
+
+#         skills = extract_skills(raw_text)
+#         print("STEP 4 - Skills extracted")
+
+#         object_name = f"{x_user_id}/{uuid.uuid4()}{os.path.splitext(file.filename)[1].lower()}"
+
+#         await upload_storage_file(
+#             object_name=object_name,
+#             file_bytes=file_bytes,
+#             content_type=file.content_type or "application/octet-stream",
+#         )
+#     #     print("STEP 5 - Uploaded to Supabase")
+
+#     #     # Existing MongoDB insert code...
+#     #     print("STEP 6 - MongoDB inserted")
+
+#     #     return serialize_resume(resume_document)
+
+#     # except Exception:
+#     #     traceback.print_exc()
+#     #     raise
+
+
+
+
+#           print("STEP 5 - Uploaded to Supabase")
+
+#           now = datetime.now(timezone.utc)
+
+#           resume_document = {
+#             "user_id": x_user_id,
+#             "original_filename": file.filename,
+#             "object_name": object_name,
+#             "content_type": file.content_type or "application/octet-stream",
+#             "file_size": len(file_bytes),
+#             "raw_text": raw_text,
+#             "parsed": {
+#                 "skills": skills,
+#             },
+#             "created_at": now,
+#             "updated_at": now,
+#           }
+
+#           result = await db.resumes.insert_one(
+#           resume_document
+#           )
+
+#         resume_document["_id"] = result.inserted_id
+
+#     print("STEP 6 - MongoDB inserted")
+
+#     return serialize_resume(resume_document)
+
+
+
+
 @app.post("/resumes/upload")
 async def upload_resume(
     file: UploadFile = File(...),
@@ -2277,7 +2346,11 @@ async def upload_resume(
         skills = extract_skills(raw_text)
         print("STEP 4 - Skills extracted")
 
-        object_name = f"{x_user_id}/{uuid.uuid4()}{os.path.splitext(file.filename)[1].lower()}"
+        object_name = (
+            f"{x_user_id}/"
+            f"{uuid.uuid4()}"
+            f"{os.path.splitext(file.filename)[1].lower()}"
+        )
 
         await upload_storage_file(
             object_name=object_name,
@@ -2286,7 +2359,26 @@ async def upload_resume(
         )
         print("STEP 5 - Uploaded to Supabase")
 
-        # Existing MongoDB insert code...
+        now = datetime.now(timezone.utc)
+
+        resume_document = {
+            "user_id": x_user_id,
+            "original_filename": file.filename,
+            "object_name": object_name,
+            "content_type": file.content_type or "application/octet-stream",
+            "file_size": len(file_bytes),
+            "raw_text": raw_text,
+            "parsed": {
+                "skills": skills,
+            },
+            "created_at": now,
+            "updated_at": now,
+        }
+
+        result = await db.resumes.insert_one(resume_document)
+
+        resume_document["_id"] = result.inserted_id
+
         print("STEP 6 - MongoDB inserted")
 
         return serialize_resume(resume_document)
@@ -2294,11 +2386,6 @@ async def upload_resume(
     except Exception:
         traceback.print_exc()
         raise
-
-
-
-
-
 
 
 
