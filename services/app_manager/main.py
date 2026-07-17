@@ -120,30 +120,55 @@ async def stats(x_user_id: str = Header(...)):
 #     cursor = db.applications.find({"user_id": x_user_id}).sort("updated_at", -1)
 #     return [serialize(doc) async for doc in cursor]
 
+# @app.get("/applications")
+# async def list_applications(
+#     x_user_id: str = Header(...),
+#     status: Optional[str] = None,
+#     search: Optional[str] = None,
+# ):
+#     query = {
+#         "user_id": x_user_id
+#     }
+
+#     # Filter by status
+#     if status and status != "all":
+#         query["status"] = status
+
+#     # Search by company name
+#     if search:
+#         query["company"] = {
+#             "$regex": search,
+#             "$options": "i"
+#         }
+
+#     cursor = db.applications.find(query).sort("updated_at", -1)
+
+#     return [serialize(doc) async for doc in cursor]
+
+
 @app.get("/applications")
 async def list_applications(
     x_user_id: str = Header(...),
     status: Optional[str] = None,
     search: Optional[str] = None,
 ):
-    query = {
-        "user_id": x_user_id
-    }
+    return []
 
-    # Filter by status
-    if status and status != "all":
-        query["status"] = status
 
-    # Search by company name
-    if search:
-        query["company"] = {
-            "$regex": search,
-            "$options": "i"
-        }
 
-    cursor = db.applications.find(query).sort("updated_at", -1)
 
-    return [serialize(doc) async for doc in cursor]
+
+
+
+
+
+
+
+
+
+
+
+
 
 @app.get("/applications/{app_id}")
 async def get_application(app_id: str, x_user_id: str = Header(...)):
