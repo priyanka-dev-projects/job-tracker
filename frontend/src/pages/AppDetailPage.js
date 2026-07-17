@@ -1212,6 +1212,7 @@ export default function AppDetailPage() {
               </div>
             ))}
           </div> */}
+
           {/* Status History */}
 
           <div
@@ -1222,6 +1223,15 @@ export default function AppDetailPage() {
               borderRadius: 10,
             }}
           >
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                marginBottom: 10,
+              }}
+            >
+              Status History
+            </div>
             <table
               style={{
                 width: "100%",
@@ -1305,6 +1315,268 @@ export default function AppDetailPage() {
               </tbody>
             </table>
           </div>
+
+          {score != null && (
+            <div
+              style={{
+                background: theme.card,
+                border: `1px solid ${theme.border}`,
+                borderRadius: 14,
+                padding: "1.5rem",
+                width: "100%",
+                boxSizing: "border-box",
+                marginTop: 14,
+              }}
+            >
+              {/* HEADING */}
+
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "#94a3b8",
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  marginBottom: 24,
+                  textAlign: "center",
+                }}
+              >
+                Resume Analysis
+              </div>
+
+              {/* SUMMARY */}
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "stretch",
+                  gap: 18,
+                  flexWrap: "wrap",
+                }}
+              >
+                {/* MATCH SCORE */}
+
+                <div
+                  style={{
+                    width: 180,
+                    minHeight: 125,
+                    background: theme.bg,
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: 12,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 16,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 32,
+                      fontWeight: 800,
+                      color:
+                        score >= 80
+                          ? "#22c55e"
+                          : score >= 60
+                            ? "#f59e0b"
+                            : "#ef4444",
+                    }}
+                  >
+                    {score}%
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 13,
+                      color: theme.subtext,
+                      fontWeight: 600,
+                    }}
+                  >
+                    Match Score
+                  </div>
+                </div>
+
+                {/* MATCHED SKILLS */}
+
+                <div
+                  style={{
+                    width: 180,
+                    minHeight: 125,
+                    background: theme.bg,
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: 12,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 16,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 32,
+                      fontWeight: 800,
+                      color: "#22c55e",
+                    }}
+                  >
+                    {result.matched_skills?.length || 0}
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 13,
+                      color: theme.subtext,
+                      fontWeight: 600,
+                    }}
+                  >
+                    Matched Skills
+                  </div>
+                </div>
+
+                {/* MISSING SKILLS */}
+
+                <div
+                  style={{
+                    width: 180,
+                    minHeight: 125,
+                    background: theme.bg,
+                    border: `1px solid ${theme.border}`,
+                    borderRadius: 12,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 16,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 32,
+                      fontWeight: 800,
+                      color: "#ef4444",
+                    }}
+                  >
+                    {result.missing_skills?.length || 0}
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: 6,
+                      fontSize: 13,
+                      color: theme.subtext,
+                      fontWeight: 600,
+                    }}
+                  >
+                    Missing Skills
+                  </div>
+                </div>
+              </div>
+
+              {/* OVERALL RATING */}
+
+              <div
+                style={{
+                  marginTop: 22,
+                  textAlign: "center",
+                }}
+              >
+                <span
+                  style={{
+                    display: "inline-block",
+                    padding: "6px 16px",
+                    borderRadius: 20,
+
+                    background:
+                      score >= 80
+                        ? "#dcfce7"
+                        : score >= 60
+                          ? "#fef3c7"
+                          : "#fee2e2",
+
+                    color:
+                      score >= 80
+                        ? "#16a34a"
+                        : score >= 60
+                          ? "#d97706"
+                          : "#dc2626",
+
+                    fontSize: 13,
+                    fontWeight: 700,
+                  }}
+                >
+                  {score >= 80
+                    ? "Excellent Match"
+                    : score >= 60
+                      ? "Good Match"
+                      : "Needs Improvement"}
+                </span>
+              </div>
+
+              {/* PROGRESS BAR */}
+
+              <div
+                style={{
+                  maxWidth: 700,
+                  margin: "24px auto 0",
+                }}
+              >
+                <div
+                  style={{
+                    height: 9,
+                    background: theme.bg,
+                    borderRadius: 20,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${score}%`,
+                      height: "100%",
+
+                      background:
+                        score >= 80
+                          ? "#22c55e"
+                          : score >= 60
+                            ? "#f59e0b"
+                            : "#ef4444",
+
+                      borderRadius: 20,
+                      transition: "width 0.5s ease",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* RECOMMENDATION */}
+
+              <div
+                style={{
+                  maxWidth: 700,
+                  margin: "14px auto 0",
+                  textAlign: "center",
+                  fontSize: 13,
+                  lineHeight: 1.6,
+                  color: theme.subtext,
+                }}
+              >
+                {score >= 80 &&
+                  "Excellent profile match. Your resume aligns strongly with the job requirements."}
+
+                {score >= 60 &&
+                  score < 80 &&
+                  "Good profile match. Improving the missing skills can strengthen your application."}
+
+                {score < 60 &&
+                  "Several important skills are missing. Consider improving the identified skill gaps before applying."}
+              </div>
+            </div>
+          )}
 
           {/* Delete */}
           {/* <button
@@ -1682,146 +1954,147 @@ export default function AppDetailPage() {
             </div>
           )} */}
 
-          {(result.matched_skills?.length > 0 ||
-            result.missing_skills?.length > 0) && (
-            <div
-              style={{
-                background: theme.card,
-                border: `1px solid ${theme.border}`,
-                borderRadius: 14,
-                padding: "1.3rem",
-              }}
-            >
+          {matchResult &&
+            (result.matched_skills?.length > 0 ||
+              result.missing_skills?.length > 0) && (
               <div
                 style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: "#94a3b8",
-                  textTransform: "uppercase",
-                  letterSpacing: 1,
-                  marginBottom: 20,
+                  background: theme.card,
+                  border: `1px solid ${theme.border}`,
+                  borderRadius: 14,
+                  padding: "1.3rem",
                 }}
               >
-                Skill Analysis
-              </div>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 20,
-                }}
-              >
-                {/* Matched */}
-
-                <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: 15,
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: "#16a34a",
-                        fontWeight: 700,
-                      }}
-                    >
-                      ✓ Matched Skills
-                    </span>
-
-                    <span
-                      style={{
-                        color: "#16a34a",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {result.matched_skills?.length || 0}
-                    </span>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 8,
-                    }}
-                  >
-                    {result.matched_skills?.map((skill) => (
-                      <span
-                        key={skill}
-                        style={{
-                          padding: "7px 12px",
-                          borderRadius: 20,
-                          background: "#dcfce7",
-                          color: "#15803d",
-                          fontWeight: 600,
-                          fontSize: 12,
-                        }}
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "#94a3b8",
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    marginBottom: 20,
+                  }}
+                >
+                  Skill Analysis
                 </div>
 
-                {/* Missing */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 20,
+                  }}
+                >
+                  {/* Matched */}
 
-                <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      marginBottom: 15,
-                    }}
-                  >
-                    <span
+                  <div>
+                    <div
                       style={{
-                        color: "#dc2626",
-                        fontWeight: 700,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: 15,
                       }}
                     >
-                      ✗ Missing Skills
-                    </span>
-
-                    <span
-                      style={{
-                        color: "#dc2626",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {result.missing_skills?.length || 0}
-                    </span>
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 8,
-                    }}
-                  >
-                    {result.missing_skills?.map((skill) => (
                       <span
-                        key={skill}
                         style={{
-                          padding: "7px 12px",
-                          borderRadius: 20,
-                          background: "#fee2e2",
-                          color: "#b91c1c",
-                          fontWeight: 600,
-                          fontSize: 12,
+                          color: "#16a34a",
+                          fontWeight: 700,
                         }}
                       >
-                        {skill}
+                        ✓ Matched Skills
                       </span>
-                    ))}
+
+                      <span
+                        style={{
+                          color: "#16a34a",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {result.matched_skills?.length || 0}
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 8,
+                      }}
+                    >
+                      {result.matched_skills?.map((skill) => (
+                        <span
+                          key={skill}
+                          style={{
+                            padding: "7px 12px",
+                            borderRadius: 20,
+                            background: "#dcfce7",
+                            color: "#15803d",
+                            fontWeight: 600,
+                            fontSize: 12,
+                          }}
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Missing */}
+
+                  <div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: 15,
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "#dc2626",
+                          fontWeight: 700,
+                        }}
+                      >
+                        ✗ Missing Skills
+                      </span>
+
+                      <span
+                        style={{
+                          color: "#dc2626",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {result.missing_skills?.length || 0}
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 8,
+                      }}
+                    >
+                      {result.missing_skills?.map((skill) => (
+                        <span
+                          key={skill}
+                          style={{
+                            padding: "7px 12px",
+                            borderRadius: 20,
+                            background: "#fee2e2",
+                            color: "#b91c1c",
+                            fontWeight: 600,
+                            fontSize: 12,
+                          }}
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
 
@@ -1972,260 +2245,6 @@ export default function AppDetailPage() {
             </div>
           </div>
         )} */}
-
-      {score != null && (
-        <div
-          style={{
-            background: theme.card,
-            border: `1px solid ${theme.border}`,
-            borderRadius: 14,
-            padding: "1.5rem",
-            width: "100%",
-            boxSizing: "border-box",
-            marginTop: 14,
-          }}
-        >
-          {/* HEADING */}
-
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: "#94a3b8",
-              textTransform: "uppercase",
-              letterSpacing: 1,
-              marginBottom: 24,
-              textAlign: "center",
-            }}
-          >
-            Resume Analysis
-          </div>
-
-          {/* SUMMARY */}
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "stretch",
-              gap: 18,
-              flexWrap: "wrap",
-            }}
-          >
-            {/* MATCH SCORE */}
-
-            <div
-              style={{
-                width: 180,
-                minHeight: 125,
-                background: theme.bg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: 12,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: 16,
-                boxSizing: "border-box",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 32,
-                  fontWeight: 800,
-                  color:
-                    score >= 80
-                      ? "#22c55e"
-                      : score >= 60
-                        ? "#f59e0b"
-                        : "#ef4444",
-                }}
-              >
-                {score}%
-              </div>
-
-              <div
-                style={{
-                  marginTop: 6,
-                  fontSize: 13,
-                  color: theme.subtext,
-                  fontWeight: 600,
-                }}
-              >
-                Match Score
-              </div>
-            </div>
-
-            {/* MATCHED SKILLS */}
-
-            <div
-              style={{
-                width: 180,
-                minHeight: 125,
-                background: theme.bg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: 12,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: 16,
-                boxSizing: "border-box",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 32,
-                  fontWeight: 800,
-                  color: "#22c55e",
-                }}
-              >
-                {result.matched_skills?.length || 0}
-              </div>
-
-              <div
-                style={{
-                  marginTop: 6,
-                  fontSize: 13,
-                  color: theme.subtext,
-                  fontWeight: 600,
-                }}
-              >
-                Matched Skills
-              </div>
-            </div>
-
-            {/* MISSING SKILLS */}
-
-            <div
-              style={{
-                width: 180,
-                minHeight: 125,
-                background: theme.bg,
-                border: `1px solid ${theme.border}`,
-                borderRadius: 12,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: 16,
-                boxSizing: "border-box",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 32,
-                  fontWeight: 800,
-                  color: "#ef4444",
-                }}
-              >
-                {result.missing_skills?.length || 0}
-              </div>
-
-              <div
-                style={{
-                  marginTop: 6,
-                  fontSize: 13,
-                  color: theme.subtext,
-                  fontWeight: 600,
-                }}
-              >
-                Missing Skills
-              </div>
-            </div>
-          </div>
-
-          {/* OVERALL RATING */}
-
-          <div
-            style={{
-              marginTop: 22,
-              textAlign: "center",
-            }}
-          >
-            <span
-              style={{
-                display: "inline-block",
-                padding: "6px 16px",
-                borderRadius: 20,
-
-                background:
-                  score >= 80 ? "#dcfce7" : score >= 60 ? "#fef3c7" : "#fee2e2",
-
-                color:
-                  score >= 80 ? "#16a34a" : score >= 60 ? "#d97706" : "#dc2626",
-
-                fontSize: 13,
-                fontWeight: 700,
-              }}
-            >
-              {score >= 80
-                ? "Excellent Match"
-                : score >= 60
-                  ? "Good Match"
-                  : "Needs Improvement"}
-            </span>
-          </div>
-
-          {/* PROGRESS BAR */}
-
-          <div
-            style={{
-              maxWidth: 700,
-              margin: "24px auto 0",
-            }}
-          >
-            <div
-              style={{
-                height: 9,
-                background: theme.bg,
-                borderRadius: 20,
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  width: `${score}%`,
-                  height: "100%",
-
-                  background:
-                    score >= 80
-                      ? "#22c55e"
-                      : score >= 60
-                        ? "#f59e0b"
-                        : "#ef4444",
-
-                  borderRadius: 20,
-                  transition: "width 0.5s ease",
-                }}
-              />
-            </div>
-          </div>
-
-          {/* RECOMMENDATION */}
-
-          <div
-            style={{
-              maxWidth: 700,
-              margin: "14px auto 0",
-              textAlign: "center",
-              fontSize: 13,
-              lineHeight: 1.6,
-              color: theme.subtext,
-            }}
-          >
-            {score >= 80 &&
-              "Excellent profile match. Your resume aligns strongly with the job requirements."}
-
-            {score >= 60 &&
-              score < 80 &&
-              "Good profile match. Improving the missing skills can strengthen your application."}
-
-            {score < 60 &&
-              "Several important skills are missing. Consider improving the identified skill gaps before applying."}
-          </div>
-        </div>
-      )}
 
       <style>{`@media(max-width:640px){ .app-detail-grid { grid-template-columns: 1fr !important; } }`}</style>
     </div>
