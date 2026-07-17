@@ -115,7 +115,11 @@ function StatusBadge({ status }) {
 
 export default function DashboardPage() {
   const { user, theme } = useAuth();
-  const { data: stats, isLoading, error: statsError } = useQuery({
+  const {
+    data: stats,
+    isLoading,
+    error: statsError,
+  } = useQuery({
     queryKey: ["stats", user?.id],
     queryFn: () => appAPI.stats().then((r) => r.data),
     enabled: !!user?.id,
@@ -156,38 +160,53 @@ export default function DashboardPage() {
     "rejected",
   ];
 
+  //pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  const sortedApplications = [...(applications || [])].sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at),
+  );
+
+  const totalPages = Math.ceil(sortedApplications.length / ITEMS_PER_PAGE);
+
+  const paginatedApplications = sortedApplications.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
   // if (isLoading) {
   //   return <Loader text="Loading applications..." />;
   // }
 
   if (
-  statsError?.message === "BACKEND_STARTING" ||
-  appsError?.message === "BACKEND_STARTING"
-) {
-  return (
-    <div
-      style={{
-        height: "70vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        textAlign: "center",
-        padding: 20,
-      }}
-    >
-      <h2>🚀 Starting backend...</h2>
+    statsError?.message === "BACKEND_STARTING" ||
+    appsError?.message === "BACKEND_STARTING"
+  ) {
+    return (
+      <div
+        style={{
+          height: "70vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+          padding: 20,
+        }}
+      >
+        <h2>🚀 Starting backend...</h2>
 
-      <p style={{ maxWidth: 500 }}>
-        This application is hosted on Render's free tier.
-        The backend is starting and may take
-        <strong> 30–60 seconds</strong> on the first visit.
-      </p>
+        <p style={{ maxWidth: 500 }}>
+          This application is hosted on Render's free tier. The backend is
+          starting and may take
+          <strong> 30–60 seconds</strong> on the first visit.
+        </p>
 
-      <p>Please wait...</p>
-    </div>
-  );
-}
+        <p>Please wait...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -634,8 +653,7 @@ export default function DashboardPage() {
                 borderRadius: 8,
                 textDecoration: "none",
                 fontWeight: 600,
-                flexWrap: "wrap"
-
+                flexWrap: "wrap",
               }}
             >
               Add Your First Application
@@ -669,11 +687,14 @@ export default function DashboardPage() {
             </thead>
 
             <tbody>
-              {(applications || [])
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-                .slice(0, 5)
-                .map((app) => (
+              {
+                // (applications || [])
+                //   .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                //   .slice(0, 5)
+                //   .map((app)
+                paginatedApplications.map((app) => (
                   // <tr
+
                   //   // key={app.id}
                   //   key={app.id || app._id}
                   //   style={{
@@ -768,9 +789,60 @@ export default function DashboardPage() {
                         : "-"}
                     </td>
                   </tr>
-                ))}
+                ))
+              }
             </tbody>
           </table>
+        )}
+        {sortedApplications.length > ITEMS_PER_PAGE && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginTop: 16,
+            }}
+          >
+            <button
+              onClick={() => setCurrentPage((p) => p - 1)}
+              disabled={currentPage === 1}
+              style={{
+                padding: "8px 14px",
+                borderRadius: 8,
+                border: `1px solid ${theme.border}`,
+                background: theme.card,
+                cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                opacity: currentPage === 1 ? 0.5 : 1,
+              }}
+            >
+              Previous
+            </button>
+
+            <span
+              style={{
+                fontSize: 14,
+                color: theme.subtext,
+                fontWeight: 600,
+              }}
+            >
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage((p) => p + 1)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: "8px 14px",
+                borderRadius: 8,
+                border: `1px solid ${theme.border}`,
+                background: theme.card,
+                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                opacity: currentPage === totalPages ? 0.5 : 1,
+              }}
+            >
+              Next
+            </button>
+          </div>
         )}
       </div>
     </div>
