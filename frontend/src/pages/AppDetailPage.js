@@ -345,10 +345,8 @@ export default function AppDetailPage() {
     <div style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
       {/* Header */}
       <div
+        className="detail-header"
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
           marginBottom: "1.5rem",
         }}
       >
@@ -368,7 +366,12 @@ export default function AppDetailPage() {
           <ArrowLeft size={18} />
         </button>
         {editing ? (
-          <div style={{ flex: 1, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div
+            className="edit-fields"
+            style={{
+              flex: 1,
+            }}
+          >
             <input
               style={{
                 ...inp,
@@ -549,9 +552,9 @@ export default function AppDetailPage() {
         </div>
 
         <div
+          className="details-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "180px 1fr 180px 1fr",
             rowGap: 14,
             columnGap: 25,
             fontSize: 14,
@@ -628,7 +631,13 @@ export default function AppDetailPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+      <div
+        className="detail-layout"
+        style={{
+          display: "grid",
+          gap: 14,
+        }}
+      >
         {/* Left */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {/* Status */}
@@ -688,6 +697,7 @@ export default function AppDetailPage() {
           {/* Application Progress */}
 
           <div
+            className="responsive-card"
             style={{
               background: theme.card,
               border: `1px solid ${theme.border}`,
@@ -709,10 +719,8 @@ export default function AppDetailPage() {
             </div>
 
             <div
+              className="progress-container"
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
                 position: "relative",
                 marginBottom: 30,
               }}
@@ -1298,6 +1306,7 @@ export default function AppDetailPage() {
           {/* Status History */}
 
           <div
+            className="responsive-card"
             style={{
               background: theme.card,
               border: `1px solid ${theme.border}`,
@@ -1328,6 +1337,7 @@ export default function AppDetailPage() {
             >
               <table
                 style={{
+                  minWidth: 500,
                   width: "100%",
                   borderCollapse: "collapse",
                   fontSize: 13,
@@ -1525,9 +1535,8 @@ export default function AppDetailPage() {
               }}
             />
             <div
+              className="button-group"
               style={{
-                display: "flex",
-                gap: 10,
                 marginTop: 15,
               }}
             >
@@ -1887,13 +1896,7 @@ export default function AppDetailPage() {
                 Skill Analysis
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 20,
-                }}
-              >
+              <div className="skills-grid">
                 {/* Matched */}
 
                 <div>
@@ -2185,20 +2188,12 @@ export default function AppDetailPage() {
 
           {/* SUMMARY */}
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "stretch",
-              gap: 18,
-              flexWrap: "wrap",
-            }}
-          >
+          <div className="summary-container">
             {/* MATCH SCORE */}
 
             <div
+              className="summary-card"
               style={{
-                width: 180,
                 minHeight: 125,
                 background: theme.bg,
                 border: `1px solid ${theme.border}`,
@@ -2241,8 +2236,8 @@ export default function AppDetailPage() {
             {/* MATCHED SKILLS */}
 
             <div
+              className="summary-card"
               style={{
-                width: 180,
                 minHeight: 125,
                 background: theme.bg,
                 border: `1px solid ${theme.border}`,
@@ -2280,8 +2275,8 @@ export default function AppDetailPage() {
             {/* MISSING SKILLS */}
 
             <div
+              className="summary-card"
               style={{
-                width: 180,
                 minHeight: 125,
                 background: theme.bg,
                 border: `1px solid ${theme.border}`,
@@ -2409,7 +2404,114 @@ export default function AppDetailPage() {
         </div>
       )}
 
-      <style>{`@media(max-width:640px){ .app-detail-grid { grid-template-columns: 1fr !important; } }`}</style>
+      <style>{`
+
+.detail-layout{
+grid-template-columns:1fr 1fr;
+}
+
+.detail-header{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.edit-fields{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+}
+
+.details-grid{
+grid-template-columns:180px 1fr 180px 1fr;
+}
+
+.progress-container{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.button-group{
+display:flex;
+gap:10px;
+}
+
+.skills-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+.summary-container{
+display:flex;
+justify-content:center;
+align-items:stretch;
+gap:18px;
+flex-wrap:wrap;
+}
+
+.summary-card{
+flex:1;
+min-width:180px;
+max-width:220px;
+}
+
+@media(max-width:900px){
+
+.detail-layout{
+grid-template-columns:1fr;
+}
+
+.details-grid{
+grid-template-columns:140px 1fr;
+}
+
+}
+
+@media(max-width:768px){
+
+.detail-header{
+flex-wrap:wrap;
+}
+
+.skills-grid{
+grid-template-columns:1fr;
+}
+
+.progress-container{
+overflow-x:auto;
+padding-bottom:10px;
+}
+
+}
+
+@media(max-width:600px){
+
+.edit-fields{
+flex-direction:column;
+}
+
+.button-group{
+flex-direction:column;
+}
+
+.button-group button{
+width:100%;
+}
+
+.summary-card{
+min-width:100%;
+max-width:100%;
+}
+
+.responsive-card{
+padding:16px !important;
+}
+
+}
+
+`}</style>
     </div>
   );
 }
