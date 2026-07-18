@@ -175,10 +175,6 @@ export default function DashboardPage() {
     currentPage * ITEMS_PER_PAGE,
   );
 
-  // if (isLoading) {
-  //   return <Loader text="Loading applications..." />;
-  // }
-
   if (
     statsError?.message === "BACKEND_STARTING" ||
     appsError?.message === "BACKEND_STARTING"
@@ -225,117 +221,6 @@ export default function DashboardPage() {
           Track your job applications and progress from one place.
         </p>
       </div>
-
-      {/* Stat cards */}
-      {/* <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(170px,1fr))",
-          gap: 12,
-          marginBottom: "1.75rem",
-        }}
-      >
-        <Card
-          icon={Briefcase}
-          label="Total"
-          value={stats?.total}
-          color="#6366f1"
-          theme={theme}
-        />
-        <Card
-          icon={TrendingUp}
-          label="Avg Match"
-          value={stats?.avg_match_score ? `${stats.avg_match_score}%` : null}
-          color="#0ea5e9"
-          theme={theme}
-        />
-        <Card
-          icon={CheckCircle}
-          label="Offers"
-          value={by.offer}
-          color="#16a34a"
-          theme={theme}
-        />
-        <Card
-          icon={Clock}
-          label="Interviews"
-          value={by.interview}
-          color="#f59e0b"
-          theme={theme}
-        />
-        <Card
-          icon={XCircle}
-          label="Rejected"
-          value={by.rejected}
-          color="#ef4444"
-          theme={theme}
-        />
-      </div>
-
-      <div
-        style={{
-          background: theme.card,
-          borderRadius: 18,
-          padding: "1.5rem",
-          marginTop: "1.5rem",
-          border: `1px solid ${theme.border}`,
-          marginBottom: "1.75rem",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 18,
-            fontWeight: 700,
-            color: theme.text,
-            marginBottom: "1rem",
-          }}
-        >
-          Applications Overview
-        </div>
-
-        <div style={{ width: "100%", height: 320 }}>
-          <ResponsiveContainer>
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                dataKey="value"
-              >
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={CHART_COLORS[index % CHART_COLORS.length]}
-                  />
-                ))}
-              </Pie>
-
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div> */}
-
-      {/* <div
-        style={{
-          marginBottom: 18,
-          fontSize: 15,
-          color: theme.subtext,
-        }}
-      >
-        Total Applications
-        <span
-          style={{
-            marginLeft: 10,
-            fontWeight: 700,
-            color: theme.text,
-            fontSize: 22,
-          }}
-        >
-          {stats?.total || 0}
-        </span>
-      </div> */}
 
       {/* Pipeline funnel */}
       <div
@@ -398,9 +283,7 @@ export default function DashboardPage() {
                       alignItems: "center",
                       color: "#cbd5e1",
                     }}
-                  >
-                    {/* <ArrowRight size={14} /> */}
-                  </div>
+                  ></div>
                 )}
               </React.Fragment>
             );
@@ -408,124 +291,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent apps */}
-      {/* <div
-        style={{
-          background: theme.card,
-          borderRadius: 14,
-          border: `1px solid ${theme.border}`,
-          padding: "1.5rem",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "1rem",
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 15,
-              fontWeight: 700,
-              color: theme.text,
-            }}
-          >
-            Recent applications
-          </h2>
-          <Link
-            to="/kanban"
-            style={{
-              fontSize: 13,
-              color: "#6366f1",
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
-            View all →
-          </Link>
-        </div>
-        {recent.length === 0 ? (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "2rem 1rem",
-              color: "#94a3b8",
-              fontSize: 14,
-            }}
-          >
-            No applications yet.{" "}
-            <Link
-              to="/kanban"
-              style={{
-                color: "#6366f1",
-                fontWeight: 600,
-                textDecoration: "none",
-              }}
-            >
-              Add your first one
-            </Link>
-          </div>
-        ) : (
-          recent.map((app, i) => (
-            <Link
-              key={app.id}
-              to={`/apps/${app.id}`}
-              style={{ textDecoration: "none" }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "0.75rem 0.5rem",
-                  borderRadius: 8,
-                  borderBottom:
-                    i < recent.length - 1 ? `1px solid ${theme.border}` : "none",
-                  transition: "background 0.1s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = theme.bg)
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "transparent")
-                }
-              >
-                <div>
-                  <div
-                    style={{ fontWeight: 600, color: theme.text, fontSize: 14 }}
-                  >
-                    {app.company}
-                  </div>
-                  <div style={{ fontSize: 12, color: theme.subtext, marginTop: 1 }}>
-                    {app.role}
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  {app.match_score != null && (
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: "#6366f1",
-                        background: "#eef2ff",
-                        padding: "2px 8px",
-                        borderRadius: 6,
-                      }}
-                    >
-                      {app.match_score}%
-                    </span>
-                  )}
-                  <StatusBadge status={app.status} />
-                </div>
-              </div>
-            </Link>
-          ))
-        )}
-      </div> */}
       <div
         style={{
           background: theme.card,
@@ -536,15 +301,6 @@ export default function DashboardPage() {
           overflowX: "auto",
         }}
       >
-        {/* <h3
-          style={{
-            marginBottom: 16,
-            color: theme.text,
-          }}
-        >
-          Recent Applications
-        </h3> */}
-
         <div
           style={{
             display: "flex",
@@ -553,17 +309,6 @@ export default function DashboardPage() {
             marginBottom: 16,
           }}
         >
-          {/* <Link
-            to="/kanban"
-            style={{
-              color: "#6366f1",
-              textDecoration: "none",
-              fontWeight: 600,
-            }}
-          >
-            View All →
-          </Link> */}
-
           <div
             style={{
               display: "flex",
@@ -674,11 +419,6 @@ export default function DashboardPage() {
                   textAlign: "left",
                 }}
               >
-                {/* <th style={{ padding: "12px" }}>Company</th>
-              <th style={{ padding: "12px" }}>Role</th>
-              <th style={{ padding: "12px" }}>Status</th>
-              <th style={{ padding: "12px" }}>Applied Date</th> */}
-
                 <th style={{ padding: "12px", width: "35%" }}>Company</th>
                 <th style={{ padding: "12px", width: "35%" }}>Role</th>
                 <th style={{ padding: "12px", width: "15%" }}>Status</th>

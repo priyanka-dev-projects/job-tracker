@@ -1,95 +1,6 @@
-// import axios from "axios";
-
-// const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
-
-// // const client = axios.create({ baseURL: API_BASE });
-
-// const client = axios.create({
-//   baseURL: API_BASE,
-//   timeout: 15000,
-// });
-
-// client.interceptors.request.use((config) => {
-//   const token = localStorage.getItem("jat_token");
-//   if (token) config.headers.Authorization = `Bearer ${token}`;
-//   return config;
-// });
-
-// client.interceptors.response.use(
-//   (res) => res,
-//   (err) => {
-//     if (err.response?.status === 401) {
-//       localStorage.removeItem("jat_token");
-//       localStorage.removeItem("jat_user");
-//       window.location.href = "/login";
-//     }
-//     return Promise.reject(err);
-//   },
-// );
-
-// export const authAPI = {
-//   register: (data) => client.post("/auth/register", data),
-//   login: (email, password) =>
-//     client.post(
-//       "/auth/login",
-//       new URLSearchParams({ username: email, password }),
-//       {
-//         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-//       },
-//     ),
-//   me: () => client.get("/auth/me"),
-// };
-
-// export const resumeAPI = {
-//   upload: (file) => {
-//     const form = new FormData();
-//     form.append("file", file);
-//     // return client.post("/resume/upload", form);
-//     return client.post("/resumes/upload", form, {
-//       headers: {
-//         "Content-Type": "multipart/form-data",
-//         "X-User-ID": JSON.parse(localStorage.getItem("jat_user"))?.id,
-//       },
-//     });
-//   },
-//   // list: () => client.get("/resume"),
-//   list: () => client.get("/resumes"),
-//   // // list: () =>
-//   // //   client.get("/resume/list", {
-//   //     headers: {
-//   //       "X-User-ID": JSON.parse(localStorage.getItem("jat_user"))?.id,
-//   //     },
-//   // //   }),
-//   get: (id) => client.get(`/resumes/${id}`),
-//   delete: (id) => client.delete(`/resumes/${id}`),
-// };
-
-// export const appAPI = {
-//   // list: () => client.get("/applications"),
-//   list: (status = "all", search = "") =>
-//     client.get("/applications", {
-//       params: { status, search },
-//     }),
-//   get: (id) => client.get(`/applications/${id}`),
-//   create: (data) => client.post("/applications", data),
-//   update: (id, data) => client.patch(`/applications/${id}`, data),
-//   delete: (id) => client.delete(`/applications/${id}`),
-//   updateStatus: (id, status, note) =>
-//     client.patch(`/applications/${id}/status`, { status, note }),
-//   stats: () => client.get("/applications/stats/overview"),
-// };
-
-// export const matchAPI = {
-//   match: (resume_id, application_id, jd_text) =>
-//     client.post("/match", { resume_id, application_id, jd_text }),
-//   gaps: (application_id) => client.get(`/gaps/${application_id}`),
-//   dashboard: () => client.get("/dashboard/skills"),
-// };
-
-// export default client;
-
-// const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
-const API_BASE = process.env.REACT_APP_API_URL || "https://jobtracker-backend-y4y4.onrender.com";
+const API_BASE =
+  process.env.REACT_APP_API_URL ||
+  "https://jobtracker-backend-y4y4.onrender.com";
 
 // ============================================================
 // HELPERS
@@ -127,10 +38,6 @@ const buildHeaders = (customHeaders = {}, isFormData = false) => {
   }
 
   /*
-    IMPORTANT
-
-    Do not manually set Content-Type for FormData.
-
     Browser automatically creates:
 
     multipart/form-data; boundary=....
@@ -166,57 +73,28 @@ const parseResponse = async (response, responseType = "json") => {
     throw new Error("Session expired");
   }
 
-  // if (!response.ok) {
-  //   let errorMessage = `Request failed (${response.status})`;
-
-  //   try {
-  //     const errorData = await response.json();
-
-  //     errorMessage = errorData?.detail || errorData?.message || errorMessage;
-  //   } catch {
-  //     // Response was not JSON
-  //   }
-
-  //   const error = new Error(errorMessage);
-
-  //   error.status = response.status;
-
-  //   throw error;
-  // }
-
-
   if (!response.ok) {
-
     // Backend is waking up (Render Free Tier)
     if (response.status === 502 || response.status === 503) {
-        const error = new Error("BACKEND_STARTING");
-        error.status = response.status;
-        throw error;
+      const error = new Error("BACKEND_STARTING");
+      error.status = response.status;
+      throw error;
     }
 
     let errorMessage = `Request failed (${response.status})`;
 
     try {
-        const errorData = await response.json();
-        errorMessage =
-            errorData?.detail ||
-            errorData?.message ||
-            errorMessage;
+      const errorData = await response.json();
+      errorMessage = errorData?.detail || errorData?.message || errorMessage;
     } catch {
-        // Response was not JSON
+      // Response was not JSON
     }
 
     const error = new Error(errorMessage);
     error.status = response.status;
 
     throw error;
-}
-
-
-
-
-
-
+  }
 
   if (responseType === "blob") {
     const blob = await response.blob();
@@ -241,14 +119,6 @@ const parseResponse = async (response, responseType = "json") => {
   }
 
   const data = await response.json();
-
-  /*
-    Axios-compatible response shape.
-
-    Existing code can continue using:
-
-    response.data
-  */
 
   return {
     data,
@@ -275,7 +145,6 @@ const request = async (
     responseType = "json",
   } = {},
 ) => {
-  // const isFormData = body instanceof FormData;
   const isFormData = body instanceof FormData;
 
   const isURLSearchParams = body instanceof URLSearchParams;
@@ -288,8 +157,7 @@ const request = async (
     body:
       body == null
         ? undefined
-        : // : isFormData
-          isFormData || isURLSearchParams
+        : isFormData || isURLSearchParams
           ? body
           : JSON.stringify(body),
   });

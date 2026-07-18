@@ -60,9 +60,7 @@ function Modal({ onClose, theme }) {
       qc.invalidateQueries(["apps"]);
       qc.invalidateQueries(["stats"]);
       toast.success("Application added!");
-      // toast.success(
       //   "Application saved. If the application doesn't appear immediately, the backend may still be starting (Render free tier). Please wait 30–60 seconds.",
-      // );
       onClose();
     },
     onError: () => toast.error("Failed to create"),
@@ -412,14 +410,6 @@ export default function KanbanPage() {
     statusMut.mutate({ id: result.draggableId, status: newStatus });
   };
 
-  // const grouped = COLUMNS.reduce((acc, col) => {
-  //   acc[col.id] = apps.filter((a) => a.status === col.id);
-  //   return acc;
-  // }, {});
-
-  // const grouped = COLUMNS.reduce((acc, col) => {
-  //   let filtered = apps.filter((a) => a.status === col.id);
-
   const applications = Array.isArray(apps) ? apps : [];
 
   const grouped = COLUMNS.reduce((acc, col) => {
@@ -548,136 +538,11 @@ export default function KanbanPage() {
             }}
           />
         </div>
-
-        {/* <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          style={{
-            padding: "0.6rem",
-            borderRadius: 8,
-            border: "1px solid #cbd5e1",
-            height: 46,
-          }}
-        >
-          <option value="all">All</option>
-          <option value="wishlist">Wishlist</option>
-          <option value="applied">Applied</option>
-          <option value="screening">Screening</option>
-          <option value="interview">Interview</option>
-          <option value="offer">Offer</option>
-          <option value="rejected">Rejected</option>
-        </select> */}
       </div>
 
       {isLoading ? (
         <Loader text="Loading applications..." />
       ) : (
-        // <DragDropContext onDragEnd={onDragEnd}>
-        //   <div
-        //     style={{
-        //       display: "flex",
-        //       gap: 10,
-        //       overflowX: "auto",
-        //       paddingBottom: "1rem",
-        //       alignItems: "flex-start",
-        //     }}
-        //   >
-        //     {COLUMNS.filter((col) => {
-        //       // During search hide empty columns
-        //       if (search.trim()) {
-        //         return grouped[col.id]?.length > 0;
-        //       }
-
-        //       return true;
-        //     }).map((col) => (
-        //       <div key={col.id} style={{ minWidth: 210, flex: "0 0 210px" }}>
-        //         <div
-        //           style={{
-        //             display: "flex",
-        //             alignItems: "center",
-        //             gap: 6,
-        //             marginBottom: 8,
-        //             padding: "0 2px",
-        //           }}
-        //         >
-        //           <div
-        //             style={{
-        //               width: 8,
-        //               height: 8,
-        //               borderRadius: "50%",
-        //               background: col.color,
-        //             }}
-        //           />
-        //           <span
-        //             style={{
-        //               fontSize: 12,
-        //               fontWeight: 700,
-        //               color: theme.subtext,
-        //               textTransform: "uppercase",
-        //               letterSpacing: 0.4,
-        //             }}
-        //           >
-        //             {col.label}
-        //           </span>
-        //           <span
-        //             style={{
-        //               marginLeft: "auto",
-        //               fontSize: 11,
-        //               color: theme.roundCircleText,
-        //               background: "#f1f5f9",
-        //               padding: "1px 7px",
-        //               borderRadius: 10,
-        //               fontWeight: 600,
-        //             }}
-        //           >
-        //             {grouped[col.id].length}
-        //           </span>
-        //         </div>
-        //         <Droppable droppableId={col.id}>
-        //           {(prov, snap) => (
-        //             <div
-        //               ref={prov.innerRef}
-        //               {...prov.droppableProps}
-        //               style={{
-        //                 minHeight: 120,
-        //                 borderRadius: 10,
-        //                 padding: 7,
-        //                 transition: "all 0.15s",
-        //                 background: snap.isDraggingOver ? "#eff6ff" : theme.bg,
-        //                 // border: `1.5px solid ${snap.isDraggingOver ? "#bfdbfe" : "#e2e8f0"}`,
-        //                 border: `1px solid ${theme.border}`
-        //               }}
-        //             >
-        //               {grouped[col.id].length === 0 ? (
-        //                 <div
-        //                   style={{
-        //                     minHeight: 80,
-        //                     display: "flex",
-        //                     alignItems: "center",
-        //                     justifyContent: "center",
-        //                     color: "#94a3b8",
-        //                     fontSize: 13,
-        //                     border: `1px dashed ${theme.border}`,
-        //                     borderRadius: 8,
-        //                     background: theme.card,
-        //                     marginTop: 4,
-        //                   }}
-        //                 >
-        //                   No applications yet
-        //                 </div>
-        //               ) : (
-        //                 grouped[col.id].map((app, i) => (
-        //                   <AppCard key={app.id} app={app} index={i} theme={theme}/>
-        //                 ))
-        //               )}
-        //               {prov.placeholder}
-        //             </div>
-        //           )}
-        //         </Droppable>
-        //       </div>
-        //     ))}
-        //   </div>
-        // </DragDropContext>
         <div
           style={{
             background: theme.card,
@@ -745,10 +610,6 @@ export default function KanbanPage() {
                   Match
                 </th>
 
-                {/* <th style={{ padding: "14px", textAlign: "left", width: "10%", color: theme.subtext }}>
-          Gaps
-        </th> */}
-
                 <th
                   style={{
                     padding: "14px",
@@ -797,32 +658,6 @@ export default function KanbanPage() {
                     <td style={{ padding: 14, color: theme.text }}>
                       {app.role}
                     </td>
-
-                    {/* <td style={{ padding: 14 }}>
-              <span
-                style={{
-                  background:
-                    app.status === "wishlist"
-                      ? "#3b82f6"
-                      : app.status === "applied"
-                      ? "#f59e0b"
-                      : app.status === "screening"
-                      ? "#f97316"
-                      : app.status === "interview"
-                      ? "#22c55e"
-                      : app.status === "offer"
-                      ? "#a855f7"
-                      : "#ef4444",
-                  color: "#fff",
-                  padding: "4px 10px",
-                  borderRadius: 20,
-                  fontSize: 12,
-                  textTransform: "capitalize",
-                }}
-              >
-                {app.status}
-              </span>
-            </td> */}
                     <td style={{ padding: 14 }}>
                       {(() => {
                         const style =
@@ -850,10 +685,6 @@ export default function KanbanPage() {
                     <td style={{ padding: 14, color: theme.text }}>
                       {app.match_score ?? "-"}%
                     </td>
-
-                    {/* <td style={{ padding: 14, color: theme.text }}>
-              {app.skill_gaps?.length ?? 0}
-            </td> */}
 
                     <td style={{ padding: 14 }}>
                       <Link
