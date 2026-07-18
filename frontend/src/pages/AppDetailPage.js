@@ -1520,13 +1520,13 @@ export default function AppDetailPage() {
               Job Description
             </div>
             <textarea
+              className="jd-textarea"
               placeholder="Paste the full job description here…"
               value={jdText}
               onChange={(e) => setJdText(e.target.value)}
               style={{
                 ...inp,
                 // minHeight: 150,
-                minHeight: 220,
                 lineHeight: 1.6,
                 fontSize: 14,
                 padding: "14px",
@@ -1563,7 +1563,7 @@ export default function AppDetailPage() {
               <button
                 onClick={handleReset}
                 style={{
-                  padding: "12px 20px",
+                  width: "160px",
                   background: "#f3f4f6",
                   color: "#374151",
                   border: `1px solid ${theme.border}`,
@@ -2435,6 +2435,7 @@ align-items:center;
 .button-group{
 display:flex;
 gap:10px;
+margin-top:15px;
 }
 
 .skills-grid{
@@ -2453,7 +2454,7 @@ flex-wrap:wrap;
 
 .summary-card{
 flex:1;
-min-width:180px;
+min-width:150px;
 max-width:220px;
 }
 
@@ -2484,6 +2485,30 @@ overflow-x:auto;
 padding-bottom:10px;
 }
 
+.jd-textarea{
+min-height:140px;
+}
+
+.button-group{
+flex-direction:column;
+}
+
+.button-group button{
+width:100%;
+}
+
+.reset-btn{
+width:100%;
+}
+
+.responsive-card{
+padding:16px !important;
+}
+
+.summary-card{
+min-width:100%;
+}
+
 }
 
 @media(max-width:600px){
@@ -2508,6 +2533,11 @@ max-width:100%;
 .responsive-card{
 padding:16px !important;
 }
+
+.jd-textarea{
+min-height:220px;
+}
+
 
 }
 
