@@ -1402,46 +1402,48 @@ from bson import ObjectId
 
 from docx import Document
 
-# from minio import Minio
-# from minio.error import S3Error
+from minio import Minio
+from minio.error import S3Error
 
-import httpx
+# import httpx
 
 
 # ============================================================
 # ENVIRONMENT CONFIGURATION
 # ============================================================
 
+MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+
 MONGO_URL = os.getenv(
     "MONGO_URL",
     "mongodb+srv://jat_db_user:Pk%407975463006@cluster0.6hy7bvy.mongodb.net/?appName=Cluster0",
 )
 
-# MINIO_ENDPOINT = os.getenv(
-#     "MINIO_ENDPOINT",
-#     # "localhost:9000",
-#     "minio:9000",
-# )
+MINIO_ENDPOINT = os.getenv(
+    "MINIO_ENDPOINT",
+    # "localhost:9000",
+    "minio:9000",
+)
 
-# MINIO_ACCESS_KEY = os.getenv(
-#     "MINIO_ACCESS_KEY",
-#     "minioadmin",
-# )
+MINIO_ACCESS_KEY = os.getenv(
+    "MINIO_ACCESS_KEY",
+    "minioadmin",
+)
 
-# MINIO_SECRET_KEY = os.getenv(
-#     "MINIO_SECRET_KEY",
-#     "minioadmin",
-# )
+MINIO_SECRET_KEY = os.getenv(
+    "MINIO_SECRET_KEY",
+    "minioadmin",
+)
 
-# MINIO_BUCKET = os.getenv(
-#     "MINIO_BUCKET",
-#     "resumes",
-# )
+MINIO_BUCKET = os.getenv(
+    "MINIO_BUCKET",
+    "resumes",
+)
 
-# MINIO_SECURE = (
-#     os.getenv("MINIO_SECURE", "false").lower()
-#     == "true"
-# )
+MINIO_SECURE = (
+    os.getenv("MINIO_SECURE", "false").lower()
+    == "true"
+)
 
 
 # SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
@@ -1457,32 +1459,32 @@ MONGO_URL = os.getenv(
 # )
 
 
-SUPABASE_URL = os.getenv(
-    "SUPABASE_URL",
-    "",
-).strip().rstrip("/")
+# SUPABASE_URL = os.getenv(
+#     "SUPABASE_URL",
+#     "",
+# ).strip().rstrip("/")
 
-SUPABASE_SERVICE_KEY = os.getenv(
-    "SUPABASE_SERVICE_KEY",
-    "",
-).strip()
+# SUPABASE_SERVICE_KEY = os.getenv(
+#     "SUPABASE_SERVICE_KEY",
+#     "",
+# ).strip()
 
-SUPABASE_BUCKET = os.getenv(
-    "SUPABASE_BUCKET",
-    "resumes",
-).strip().strip("/")
-
-
-if not SUPABASE_URL:
-    raise RuntimeError(
-        "SUPABASE_URL environment variable is missing"
-    )
+# SUPABASE_BUCKET = os.getenv(
+#     "SUPABASE_BUCKET",
+#     "resumes",
+# ).strip().strip("/")
 
 
-if not SUPABASE_SERVICE_KEY:
-    raise RuntimeError(
-        "SUPABASE_SERVICE_KEY environment variable is missing"
-    )
+# if not SUPABASE_URL:
+#     raise RuntimeError(
+#         "SUPABASE_URL environment variable is missing"
+#     )
+
+
+# if not SUPABASE_SERVICE_KEY:
+#     raise RuntimeError(
+#         "SUPABASE_SERVICE_KEY environment variable is missing"
+#     )
 
 
 # ============================================================
@@ -1517,12 +1519,12 @@ db = mongo_client["jat"]
 # MINIO
 # ============================================================
 
-# minio_client = Minio(
-#     MINIO_ENDPOINT,
-#     access_key=MINIO_ACCESS_KEY,
-#     secret_key=MINIO_SECRET_KEY,
-#     secure=MINIO_SECURE,
-# )
+minio_client = Minio(
+    MINIO_ENDPOINT,
+    access_key=MINIO_ACCESS_KEY,
+    secret_key=MINIO_SECRET_KEY,
+    secure=MINIO_SECURE,
+)
 
 
 # ============================================================
@@ -1868,44 +1870,44 @@ def serialize_resume(document):
 # STARTUP
 # ============================================================
 
-# @app.on_event("startup")
-# async def startup():
+@app.on_event("startup")
+async def startup():
 
-#     try:
+    try:
 
-#         if not minio_client.bucket_exists(
-#             MINIO_BUCKET
-#         ):
+        if not minio_client.bucket_exists(
+            MINIO_BUCKET
+        ):
 
-#             minio_client.make_bucket(
-#                 MINIO_BUCKET
-#             )
+            minio_client.make_bucket(
+                MINIO_BUCKET
+            )
 
-#     except Exception as exc:
+    except Exception as exc:
 
-#         print(
-#             "MINIO STARTUP ERROR:",
-#             exc,
-#         )
+        print(
+            "MINIO STARTUP ERROR:",
+            exc,
+        )
 
 
 
-def get_supabase_headers(
-    content_type: str = None,
-):
+# def get_supabase_headers(
+#     content_type: str = None,
+# ):
 
-    headers = {
-        "Authorization":
-            f"Bearer {SUPABASE_SERVICE_KEY}",
+#     headers = {
+#         "Authorization":
+#             f"Bearer {SUPABASE_SERVICE_KEY}",
 
-        "apikey":
-            SUPABASE_SERVICE_KEY,
-    }
+#         "apikey":
+#             SUPABASE_SERVICE_KEY,
+#     }
 
-    if content_type:
-        headers["Content-Type"] = content_type
+#     if content_type:
+#         headers["Content-Type"] = content_type
 
-    return headers
+#     return headers
 
 
 # def get_storage_url(
@@ -1957,117 +1959,179 @@ def get_supabase_headers(
 
 
 
-def get_storage_url(object_name: str) -> str:
-    clean_object_name = object_name.lstrip("/")
+# def get_storage_url(object_name: str) -> str:
+#     clean_object_name = object_name.lstrip("/")
 
-    return (
-        f"{SUPABASE_URL}"
-        f"/storage/v1/object/"
-        f"{SUPABASE_BUCKET}/"
-        f"{clean_object_name}"
-    )
+#     return (
+#         f"{SUPABASE_URL}"
+#         f"/storage/v1/object/"
+#         f"{SUPABASE_BUCKET}/"
+#         f"{clean_object_name}"
+#     )
 
+
+# async def upload_storage_file(
+#     object_name: str,
+#     file_bytes: bytes,
+#     content_type: str,
+# ):
+#     url = get_storage_url(object_name)
+
+#     headers = {
+#         "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
+#         "apikey": SUPABASE_SERVICE_KEY,
+#         "Content-Type": content_type,
+#         "x-upsert": "false",
+#     }
+
+#     print("SUPABASE BASE URL:", repr(SUPABASE_URL))
+#     print("SUPABASE BUCKET:", repr(SUPABASE_BUCKET))
+#     print("SUPABASE OBJECT:", repr(object_name))
+#     print("SUPABASE FINAL URL:", repr(url))
+
+#     async with httpx.AsyncClient(timeout=60.0) as client:
+#         response = await client.post(
+#             url,
+#             headers=headers,
+#             content=file_bytes,
+#         )
+
+#     print(
+#         "SUPABASE RESPONSE:",
+#         response.status_code,
+#         response.text,
+#     )
+
+#     if response.status_code not in (200, 201):
+#         raise HTTPException(
+#             status_code=500,
+#             detail=f"File storage failed: {response.text}",
+#         )
+    
 
 async def upload_storage_file(
     object_name: str,
     file_bytes: bytes,
     content_type: str,
 ):
-    url = get_storage_url(object_name)
-
-    headers = {
-        "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
-        "apikey": SUPABASE_SERVICE_KEY,
-        "Content-Type": content_type,
-        "x-upsert": "false",
-    }
-
-    print("SUPABASE BASE URL:", repr(SUPABASE_URL))
-    print("SUPABASE BUCKET:", repr(SUPABASE_BUCKET))
-    print("SUPABASE OBJECT:", repr(object_name))
-    print("SUPABASE FINAL URL:", repr(url))
-
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        response = await client.post(
-            url,
-            headers=headers,
-            content=file_bytes,
+    try:
+        minio_client.put_object(
+            MINIO_BUCKET,
+            object_name,
+            io.BytesIO(file_bytes),
+            length=len(file_bytes),
+            content_type=content_type,
         )
 
-    print(
-        "SUPABASE RESPONSE:",
-        response.status_code,
-        response.text,
-    )
-
-    if response.status_code not in (200, 201):
+    except S3Error as exc:
         raise HTTPException(
             status_code=500,
-            detail=f"File storage failed: {response.text}",
+            detail=f"MinIO upload failed: {exc}",
         )
-    
+
+
+
+# async def read_storage_file(
+#     object_name: str,
+# ) -> bytes:
+
+#     url = get_storage_url(
+#         object_name
+#     )
+
+#     async with httpx.AsyncClient(
+#         timeout=60.0
+#     ) as client:
+
+#         response = await client.get(
+#             url,
+#             headers=get_supabase_headers(),
+#         )
+
+#     if response.status_code != 200:
+
+#         raise HTTPException(
+#             status_code=404,
+#             detail=(
+#                 "Stored resume file "
+#                 "not found"
+#             ),
+#         )
+
+#     return response.content
 
 async def read_storage_file(
     object_name: str,
-) -> bytes:
+):
+    response = None
 
-    url = get_storage_url(
-        object_name
-    )
-
-    async with httpx.AsyncClient(
-        timeout=60.0
-    ) as client:
-
-        response = await client.get(
-            url,
-            headers=get_supabase_headers(),
+    try:
+        response = minio_client.get_object(
+            MINIO_BUCKET,
+            object_name,
         )
 
-    if response.status_code != 200:
+        return response.read()
 
+    except S3Error as exc:
         raise HTTPException(
             status_code=404,
-            detail=(
-                "Stored resume file "
-                "not found"
-            ),
+            detail=f"Stored resume file not found: {exc}",
         )
 
-    return response.content
+    finally:
+        if response:
+            response.close()
+            response.release_conn()
 
 
+
+# async def delete_storage_file(
+#     object_name: str,
+# ):
+
+#     url = get_storage_url(
+#         object_name
+#     )
+
+#     async with httpx.AsyncClient(
+#         timeout=60.0
+#     ) as client:
+
+#         response = await client.delete(
+#             url,
+#             headers=get_supabase_headers(),
+#         )
+
+#     if response.status_code not in (
+#         200,
+#         204,
+#     ):
+
+#         raise HTTPException(
+#             status_code=500,
+#             detail=(
+#                 "Unable to delete "
+#                 "stored file: "
+#                 f"{response.text}"
+#             ),
+#         )
+    
 async def delete_storage_file(
     object_name: str,
 ):
-
-    url = get_storage_url(
-        object_name
-    )
-
-    async with httpx.AsyncClient(
-        timeout=60.0
-    ) as client:
-
-        response = await client.delete(
-            url,
-            headers=get_supabase_headers(),
+    try:
+        minio_client.remove_object(
+            MINIO_BUCKET,
+            object_name,
         )
 
-    if response.status_code not in (
-        200,
-        204,
-    ):
-
+    except S3Error as exc:
         raise HTTPException(
             status_code=500,
-            detail=(
-                "Unable to delete "
-                "stored file: "
-                f"{response.text}"
-            ),
+            detail=f"Unable to delete stored file: {exc}",
         )
-    
+
 
 # ============================================================
 # LIST RESUMES
@@ -2357,7 +2421,7 @@ async def upload_resume(
             file_bytes=file_bytes,
             content_type=file.content_type or "application/octet-stream",
         )
-        print("STEP 5 - Uploaded to Supabase")
+        print("STEP 5 - Uploaded to local")
 
         now = datetime.now(timezone.utc)
 

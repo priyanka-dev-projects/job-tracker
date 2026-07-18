@@ -9,7 +9,10 @@ from bson import ObjectId
 from pydantic import BaseModel
 # import asyncio
 
-MONGO_URL = os.getenv("MONGO_URL", "mongodb+srv://jat_db_user:Pk%407975463006@cluster0.6hy7bvy.mongodb.net/?appName=Cluster0")
+
+MONGO_URL          = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+
+# MONGO_URL = os.getenv("MONGO_URL", "mongodb+srv://jat_db_user:Pk%407975463006@cluster0.6hy7bvy.mongodb.net/?appName=Cluster0")
 
 app = FastAPI(title="Application Manager", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
