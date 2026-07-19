@@ -326,31 +326,30 @@ export default function DashboardPage() {
               Recent Applications
             </h3>
 
-            <Link
-              to="/kanban"
-              style={{
-                marginLeft: "auto",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                background: "#6366f1",
-                color: "#fff",
-                padding: "10px 16px",
-                borderRadius: 8,
-                textDecoration: "none",
-                fontWeight: 600,
-                textAlign: "center",
-              }}
-            >
-              {/* <Plus size={16} /> */}
-              Add Application
-            </Link>
-
-            {applications?.length > 0 && (
+            {applications?.length === 0 ? (
               <Link
                 to="/kanban"
                 style={{
-                  marginLeft: 12,
+                  marginLeft: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "#6366f1",
+                  color: "#fff",
+                  padding: "10px 16px",
+                  borderRadius: 8,
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  textAlign: "center",
+                }}
+              >
+                Add Application
+              </Link>
+            ) : (
+              <Link
+                to="/kanban"
+                style={{
+                  marginLeft: "auto",
                   color: "#6366f1",
                   textDecoration: "none",
                   fontWeight: 600,
